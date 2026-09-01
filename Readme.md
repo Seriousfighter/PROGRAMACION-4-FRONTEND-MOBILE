@@ -1,37 +1,38 @@
-# 📱 Frontend Mobile — Gestión de Disponibilidad de Mesas
+# 📱 Mobile — Gestión de Disponibilidad de Mesas
 
-> **Repositorio del Frontend Mobile:** Cliente web orientado principalmente a dispositivos móviles para la gestión de restaurantes y disponibilidad de mesas.
+> **Repositorio del Frontend Mobile:** Aplicación móvil para la gestión de restaurantes y disponibilidad de mesas.
 >
-> Este proyecto consume la **misma API REST** utilizada por el Frontend Web.
+> Este proyecto consume la **API REST Mesas Disponibles** y representa el cliente móvil del sistema.
 >
-> El objetivo académico es desarrollar un segundo cliente web con una organización de navegación y una interfaz pensadas específicamente para pantallas pequeñas, permitiendo comparar las decisiones de diseño y desarrollo frente al Frontend Web.
+> La aplicación utiliza la misma API que el Frontend Web, permitiendo comparar las diferencias entre desarrollar una aplicación web y una aplicación móvil nativa.
 
 ---
 
-# 📋 Tabla de Contenidos
+## 📋 Tabla de Contenidos
 
 1. [Visión General](#1-visión-general)
 2. [Objetivo](#2-objetivo)
 3. [Arquitectura General](#3-arquitectura-general)
 4. [Funcionalidades](#4-funcionalidades)
-5. [Flujos de Navegación](#5-flujos-de-navegación)
+5. [Flujos de Usuario](#5-flujos-de-usuario)
 6. [Autenticación](#6-autenticación)
 7. [Consumo de la API](#7-consumo-de-la-api)
-8. [Arquitectura del Frontend](#8-arquitectura-del-frontend)
+8. [Arquitectura de la Aplicación](#8-arquitectura-de-la-aplicación)
 9. [Estructura del Proyecto](#9-estructura-del-proyecto)
-10. [Diseño Mobile](#10-diseño-mobile)
-11. [Manejo de Estados](#11-manejo-de-estados)
-12. [Validaciones y Errores](#12-validaciones-y-errores)
-13. [Seguridad](#13-seguridad)
-14. [Requisitos No Funcionales](#14-requisitos-no-funcionales)
-15. [Etapas de Desarrollo](#15-etapas-de-desarrollo)
-16. [Diferencias con el Frontend Web](#16-diferencias-con-el-frontend-web)
+10. [Estado y Ciclo de Vida](#10-estado-y-ciclo-de-vida)
+11. [Persistencia Local](#11-persistencia-local)
+12. [Conectividad y Sincronización](#12-conectividad-y-sincronización)
+13. [Validaciones y Errores](#13-validaciones-y-errores)
+14. [Seguridad](#14-seguridad)
+15. [Requisitos No Funcionales](#15-requisitos-no-funcionales)
+16. [Etapas de Desarrollo](#16-etapas-de-desarrollo)
+17. [Diferencias entre Web y Mobile](#17-diferencias-entre-web-y-mobile)
 
 ---
 
 # 1. Visión General
 
-El sistema está compuesto por una API REST y dos clientes web independientes.
+El sistema está compuesto por una API REST y diferentes clientes.
 
 ```text
                          ┌─────────────────────┐
@@ -46,80 +47,79 @@ El sistema está compuesto por una API REST y dos clientes web independientes.
                          │       JWT           │
                          └─────────┬───────────┘
                                    │
-                     ┌─────────────┴─────────────┐
-                     │                           │
-                     ▼                           ▼
-          ┌──────────────────┐        ┌──────────────────┐
-          │   Frontend Web   │        │ Frontend Mobile  │
-          │                  │        │                  │
-          │ Desktop-oriented │        │ Mobile-oriented  │
-          │                  │        │                  │
-          │ Cliente Web      │        │ Cliente Web      │
-          └──────────────────┘        └──────────────────┘
+                    ┌──────────────┴──────────────┐
+                    │                             │
+                    ▼                             ▼
+          ┌──────────────────┐          ┌──────────────────┐
+          │   Frontend Web   │          │  Frontend Mobile │
+          │                  │          │                  │
+          │    Navegador     │          │   Aplicación     │
+          │                  │          │      nativa      │
+          └──────────────────┘          └──────────────────┘
 ```
 
-Ambos frontends:
+El Frontend Mobile **no accede directamente a MySQL**.
 
-- Son aplicaciones web.
-- Consumen la misma API.
-- Utilizan HTTP/JSON.
-- Utilizan JWT para autenticación.
-- Trabajan sobre los mismos datos.
-
-La diferencia principal está en **cómo se presenta y organiza la información**.
+Toda comunicación con el servidor se realiza mediante la API REST.
 
 ---
 
 # 2. Objetivo
 
-El objetivo de este frontend es desarrollar una interfaz web pensada principalmente para dispositivos móviles.
+El objetivo de la aplicación móvil es permitir que un administrador gestione sus restaurantes y mesas desde un dispositivo móvil.
 
-Se busca estudiar:
+La aplicación deberá permitir:
 
-- Diseño Mobile First.
-- Interfaces táctiles.
-- Navegación simplificada.
-- Organización de contenido en pantallas pequeñas.
-- Componentes adaptados a dispositivos móviles.
-- Estados de carga y errores.
-- Consumo de APIs desde un cliente web.
-- Diferencias entre una interfaz orientada a escritorio y una orientada a móviles.
+- Iniciar sesión.
+- Mantener la sesión del usuario.
+- Consultar sus restaurantes.
+- Crear restaurantes.
+- Editar restaurantes.
+- Eliminar restaurantes.
+- Consultar las mesas de un restaurante.
+- Crear mesas.
+- Editar mesas.
+- Eliminar mesas.
+- Cambiar rápidamente el estado de una mesa.
+- Consultar públicamente restaurantes según disponibilidad.
+
+El desarrollo también tiene como objetivo académico comprender las diferencias entre un cliente Web y un cliente Mobile que utilizan el mismo backend.
 
 ---
 
 # 3. Arquitectura General
 
-El frontend no tiene acceso directo a la base de datos.
+El backend concentra la lógica de negocio.
 
-Toda la información se obtiene mediante la API.
+Los clientes solamente consumen la API.
 
 ```text
-┌─────────────────────┐
-│ Frontend Mobile     │
-│                     │
-│ HTML / CSS / JS     │
-└──────────┬──────────┘
-           │
-           │ HTTP / JSON
-           ▼
-┌─────────────────────┐
-│        API          │
-│                     │
-│ Routes              │
-│ Controllers         │
-│ Services            │
-│ Models / ORM        │
-└──────────┬──────────┘
-           │
-           ▼
-┌─────────────────────┐
-│       MySQL         │
-└─────────────────────┘
+                         ┌──────────────────┐
+                         │      MySQL       │
+                         └────────▲─────────┘
+                                  │
+                                  │
+                         ┌────────┴─────────┐
+                         │       API        │
+                         │                  │
+                         │ REST / JSON      │
+                         │ JWT              │
+                         │ Validaciones     │
+                         │ Lógica negocio   │
+                         └───────┬──────────┘
+                                 │
+                    HTTP / JSON  │
+                    ┌────────────┴────────────┐
+                    │                         │
+                    ▼                         ▼
+             ┌─────────────┐           ┌─────────────┐
+             │     WEB     │           │   MOBILE    │
+             │             │           │             │
+             │ Navegador   │           │ App nativa  │
+             └─────────────┘           └─────────────┘
 ```
 
-La API es responsable de la lógica de negocio y persistencia.
-
-El frontend es responsable principalmente de la presentación y la interacción con el usuario.
+Una modificación realizada desde Mobile será visible posteriormente desde Web, y viceversa, porque ambos clientes trabajan sobre los mismos datos almacenados en el servidor.
 
 ---
 
@@ -132,29 +132,29 @@ El usuario podrá iniciar sesión mediante:
 - Email.
 - Contraseña.
 
-Endpoint:
+La aplicación enviará las credenciales a:
 
 ```http
 POST /api/login
 ```
 
-La API devolverá un JWT que será utilizado para las operaciones autenticadas.
+Si las credenciales son correctas, la API devolverá un JWT.
 
 ---
 
 ## 4.2 Restaurantes
 
-El usuario podrá administrar múltiples restaurantes.
+Un usuario puede administrar múltiples restaurantes.
 
-Funcionalidades:
+La aplicación permitirá:
 
 - Listar restaurantes.
-- Crear restaurante.
-- Consultar restaurante.
-- Editar restaurante.
-- Eliminar restaurante.
+- Crear restaurantes.
+- Consultar un restaurante.
+- Editar un restaurante.
+- Eliminar un restaurante.
 
-Datos:
+Los datos principales son:
 
 ```text
 Nombre
@@ -163,7 +163,7 @@ Teléfono
 Descripción
 ```
 
-Endpoints:
+Endpoints utilizados:
 
 ```http
 GET    /api/restaurants
@@ -177,7 +177,7 @@ DELETE /api/restaurants/{id}
 
 ## 4.3 Mesas
 
-Cada restaurante puede contener múltiples mesas.
+Cada restaurante puede tener múltiples mesas.
 
 Una mesa contiene:
 
@@ -187,14 +187,14 @@ Cantidad de sillas
 Estado
 ```
 
-Funcionalidades:
+La aplicación permitirá:
 
 - Listar mesas.
-- Crear mesa.
-- Consultar mesa.
-- Editar mesa.
-- Eliminar mesa.
-- Cambiar estado.
+- Crear mesas.
+- Consultar una mesa.
+- Editar mesas.
+- Eliminar mesas.
+- Cambiar rápidamente su estado.
 
 Endpoints:
 
@@ -209,168 +209,311 @@ PATCH  /api/tables/{id}/status
 
 ---
 
-## 4.4 Consulta pública
+# 5. Flujos de Usuario
 
-La aplicación contará con una sección pública.
-
-```http
-GET /api/public/restaurants
-```
-
-Esta pantalla mostrará los restaurantes ordenados según la cantidad de mesas disponibles.
-
-No requiere autenticación.
-
----
-
-# 5. Flujos de Navegación
-
-La navegación estará diseñada teniendo en cuenta el tamaño reducido de las pantallas.
-
-### Flujo principal
-
-```text
-                    ┌──────────┐
-                    │  Login   │
-                    └────┬─────┘
-                         │
-                         ▼
-                ┌─────────────────┐
-                │    Inicio       │
-                └────────┬────────┘
-                         │
-              ┌──────────┼──────────┐
-              │          │          │
-              ▼          ▼          ▼
-         Restaurantes  Perfil    Logout
-              │
-              ▼
-        Seleccionar
-        restaurante
-              │
-              ▼
-            Mesas
-              │
-        ┌─────┼─────┐
-        │     │     │
-        ▼     ▼     ▼
-      Crear  Editar Eliminar
-        │
-        ▼
-   Cambiar estado
-```
-
-La navegación podrá implementarse mediante rutas y componentes propios del framework seleccionado.
-
----
-
-# 6. Autenticación
-
-El proceso de autenticación será equivalente al utilizado por el Frontend Web.
+## 5.1 Login
 
 ```text
 Usuario
    │
    ▼
-Login
+Pantalla Login
    │
    │ email + password
    ▼
-POST /api/login
-   │
-   ▼
 API
    │
-   │ JWT
-   ▼
-Frontend Mobile
+   ├── Error ──► Mostrar mensaje
    │
-   │ Authorization: Bearer <token>
-   ▼
+   └── Éxito
+        │
+        ▼
+       JWT
+        │
+        ▼
+ Guardar sesión
+        │
+        ▼
+    Dashboard
+```
+
+---
+
+## 5.2 Selección de restaurante
+
+```text
+Dashboard
+    │
+    ▼
+Mis Restaurantes
+    │
+    ├── Restaurante A
+    ├── Restaurante B
+    └── Restaurante C
+             │
+             ▼
+           Mesas
+```
+
+---
+
+## 5.3 Cambio de estado
+
+La aplicación deberá proporcionar una acción rápida para cambiar el estado de una mesa.
+
+Por ejemplo:
+
+```text
+┌─────────────────────────┐
+│ Mesa 5                  │
+│                         │
+│ 4 sillas                │
+│                         │
+│ 🟢 DISPONIBLE           │
+│                         │
+│ [ Cambiar estado ]      │
+└─────────────────────────┘
+```
+
+Al presionar el botón:
+
+```http
+PATCH /api/tables/{id}/status
+```
+
+No se envía el nuevo estado en el body.
+
+La API determina el siguiente estado y devuelve la mesa actualizada.
+
+---
+
+# 6. Autenticación
+
+La autenticación utiliza JWT.
+
+## Flujo
+
+```text
+Mobile
+  │
+  │ POST /api/login
+  │ email + password
+  ▼
+API
+  │
+  │ JWT
+  ▼
+Mobile
+  │
+  │ Authorization: Bearer <token>
+  ▼
 Endpoints privados
 ```
 
-El frontend no almacena ni vuelve a enviar la contraseña una vez completado el login.
+El token deberá almacenarse utilizando un mecanismo apropiado para aplicaciones móviles.
+
+La aplicación no deberá almacenar la contraseña del usuario.
 
 ---
 
 # 7. Consumo de la API
 
-La comunicación con el backend deberá centralizarse.
+El frontend se comunicará con el backend mediante solicitudes HTTP utilizando la API REST.
 
-Conceptualmente:
-
-```text
-Página / Componente
-          │
-          ▼
-      API Client
-          │
-          ▼
-     HTTP / JSON
-          │
-          ▼
-         API
-```
-
-Se recomienda separar las operaciones por recurso:
+La comunicación utilizará JSON como formato de intercambio de información.
 
 ```text
-services/
-│
-├── auth
-├── restaurants
-└── tables
+┌──────────────────────────────┐
+│          Frontend            │
+│                              │
+│ HTML / CSS / JavaScript      │
+└──────────────┬───────────────┘
+               │
+               │ HTTP / JSON
+               ▼
+┌──────────────────────────────┐
+│             API              │
+│                              │
+│ REST / JWT / Validaciones    │
+└──────────────┬───────────────┘
+               │
+               ▼
+┌──────────────────────────────┐
+│            MySQL             │
+└──────────────────────────────┘
 ```
 
-De esta manera, los componentes de interfaz no necesitan conocer directamente los detalles de las solicitudes HTTP.
+El frontend **no accede directamente a MySQL**.
+
+Toda operación relacionada con los datos deberá realizarse mediante los endpoints definidos por la API.
+
+---
+
+## Cliente HTTP
+
+Las solicitudes podrán realizarse utilizando las herramientas disponibles en JavaScript, por ejemplo:
+
+```javascript
+fetch('/api/restaurants')
+```
+
+o mediante una biblioteca especializada si el framework seleccionado lo requiere.
+
+El proyecto deberá centralizar las solicitudes a la API para evitar repetir código innecesariamente.
+
+Una organización posible es:
+
+```text
+src/
+├── services/
+│   ├── api.js
+│   ├── auth.js
+│   ├── restaurants.js
+│   └── tables.js
+```
+
+Por ejemplo:
+
+```text
+restaurants.js
+      │
+      ├── getRestaurants()
+      ├── getRestaurant(id)
+      ├── createRestaurant(data)
+      ├── updateRestaurant(id, data)
+      └── deleteRestaurant(id)
+```
+
+De esta manera, los componentes visuales no necesitan conocer todos los detalles de las solicitudes HTTP.
+
+---
+
+## Ejemplo de flujo
+
+Cuando el usuario presiona el botón para cambiar el estado de una mesa:
+
+```text
+Usuario
+   │
+   │ Click
+   ▼
+Componente / Página
+   │
+   ▼
+Función JavaScript
+   │
+   ▼
+API Client
+   │
+   │ PATCH
+   │ /api/tables/{id}/status
+   │ Authorization: Bearer <JWT>
+   ▼
+API
+   │
+   ▼
+JSON Response
+   │
+   ▼
+JavaScript
+   │
+   ▼
+Actualizar interfaz
+```
+
+La API es responsable de determinar el nuevo estado de la mesa.
+
+El frontend únicamente solicita:
+
+```http
+PATCH /api/tables/{id}/status
+```
+
+sin enviar el nuevo `status_id`.
 
 ---
 
 # 8. Arquitectura del Frontend
 
-El proyecto deberá mantener separadas las responsabilidades.
+El proyecto utilizará una arquitectura sencilla que permita separar las responsabilidades principales.
 
 ```text
-┌─────────────────────────────┐
-│            UI               │
-│                             │
-│ Pages / Components          │
-└──────────────┬──────────────┘
+┌──────────────────────────────┐
+│             UI               │
+│                              │
+│ HTML / Components / Pages    │
+└──────────────┬───────────────┘
                │
                ▼
-┌─────────────────────────────┐
-│      Lógica de interfaz     │
-│                             │
-│ Estado / eventos / loading  │
-└──────────────┬──────────────┘
+┌──────────────────────────────┐
+│        Lógica JavaScript     │
+│                              │
+│ Eventos / Estado / Validación│
+└──────────────┬───────────────┘
                │
                ▼
-┌─────────────────────────────┐
-│         API Client          │
-│                             │
-│ HTTP / JSON / JWT           │
-└──────────────┬──────────────┘
+┌──────────────────────────────┐
+│          API Client          │
+│                              │
+│ HTTP / JSON / JWT            │
+└──────────────┬───────────────┘
                │
                ▼
               API
 ```
 
-El objetivo es evitar componentes que concentren simultáneamente:
+La separación no pretende implementar una arquitectura excesivamente compleja.
 
-- Interfaz.
-- Solicitudes HTTP.
-- Lógica de negocio.
-- Manejo de autenticación.
-- Validaciones complejas.
+El objetivo es que cada parte tenga una responsabilidad clara:
+
+### UI
+
+Responsable de:
+
+* Mostrar información.
+* Capturar acciones del usuario.
+* Mostrar formularios.
+* Mostrar estados de carga.
+* Mostrar errores.
+
+### JavaScript
+
+Responsable de:
+
+* Manejar eventos.
+* Controlar el estado de la interfaz.
+* Validar datos básicos.
+* Ejecutar acciones.
+* Procesar respuestas de la API.
+
+### API Client
+
+Responsable de:
+
+* Realizar solicitudes HTTP.
+* Enviar headers.
+* Enviar JSON.
+* Recibir respuestas.
+* Manejar errores HTTP.
+
+### API
+
+Responsable de:
+
+* Autenticación.
+* Autorización.
+* Validaciones.
+* Lógica de negocio.
+* Acceso a MySQL.
+* Persistencia de información.
 
 ---
 
 # 9. Estructura del Proyecto
 
-La estructura dependerá del framework seleccionado.
+La estructura exacta dependerá de si se utiliza JavaScript puro o un framework.
 
-Como referencia:
+Una estructura de referencia para un frontend web podría ser:
 
 ```text
 frontend-mobile/
@@ -382,8 +525,8 @@ frontend-mobile/
 │   ├── components/
 │   │   ├── RestaurantCard
 │   │   ├── TableCard
-│   │   ├── TableForm
-│   │   └── ...
+│   │   ├── RestaurantForm
+│   │   └── TableForm
 │   │
 │   ├── pages/
 │   │   ├── Login
@@ -394,335 +537,360 @@ frontend-mobile/
 │   │   └── PublicRestaurants
 │   │
 │   ├── services/
-│   │   ├── api
-│   │   ├── auth
-│   │   ├── restaurants
-│   │   └── tables
+│   │   ├── api.js
+│   │   ├── auth.js
+│   │   ├── restaurants.js
+│   │   └── tables.js
 │   │
 │   ├── router/
 │   │   └── ...
 │   │
-│   ├── store/
-│   │   └── ...
+│   ├── styles/
+│   │   ├── global.css
+│   │   ├── layout.css
+│   │   └── components.css
 │   │
-│   └── main
+│   └── main.js
 │
+├── index.html
+├── package.json
 ├── .env
 ├── .env.example
-├── package.json
 └── README.md
 ```
 
-La estructura es orientativa y podrá modificarse según el framework utilizado.
+Esta estructura es orientativa.
+
+Si se utiliza un framework como **Vue, React o Svelte**, la estructura se adaptará a las convenciones correspondientes.
+
+Si se utiliza JavaScript sin framework, podrá utilizarse una estructura más simple:
+
+```text
+frontend-mobile/
+│
+├── index.html
+│
+├── css/
+│   ├── global.css
+│   └── mobile.css
+│
+├── js/
+│   ├── api.js
+│   ├── auth.js
+│   ├── restaurants.js
+│   ├── tables.js
+│   └── app.js
+│
+├── assets/
+│
+└── README.md
+```
+
+La elección del framework queda a criterio del equipo, siempre que se mantenga el objetivo principal del proyecto: desarrollar un cliente web orientado a dispositivos móviles.
+
+
+# 10. Estado de la Aplicación
+
+El frontend deberá manejar el estado necesario para representar correctamente la información recibida desde la API.
+
+Por ejemplo, una pantalla que muestra las mesas de un restaurante deberá contemplar al menos los siguientes estados:
+
+```text
+┌──────────────┐
+│   Cargando   │
+└──────┬───────┘
+       │
+       ▼
+   Solicitud API
+       │
+   ┌───┴────┐
+   │        │
+   ▼        ▼
+Éxito     Error
+   │        │
+   ▼        ▼
+Mostrar   Mostrar
+datos     mensaje
+```
+
+El estado puede incluir información como:
+
+* Datos obtenidos de la API.
+* Estado de carga.
+* Errores.
+* Usuario autenticado.
+* Restaurante seleccionado.
+* Mesa seleccionada.
+* Formularios.
+* Mensajes de confirmación.
+
+La forma de administrar este estado dependerá de la tecnología utilizada.
+
+Si se utiliza JavaScript sin framework, podrá manejarse mediante variables, objetos y funciones.
+
+Si se utiliza un framework como Vue, React o Svelte, podrá utilizarse el sistema de estado correspondiente.
 
 ---
 
-# 10. Diseño Mobile
+# 11. Navegación
 
-La aplicación estará diseñada utilizando un enfoque **Mobile First**.
+La aplicación deberá contar con una navegación clara y adaptada a dispositivos móviles.
 
-Esto significa que el diseño inicial se realizará pensando primero en pantallas pequeñas.
+El proyecto podrá utilizar un sistema de rutas proporcionado por el framework seleccionado o implementar una navegación sencilla mediante JavaScript.
 
-```text
-Mobile
-  │
-  ▼
-Diseño inicial
-  │
-  ▼
-Pantalla pequeña
-  │
-  ▼
-Se agregan adaptaciones
-  │
-  ▼
-Pantallas mayores
-```
-
-## Principios de diseño
-
-Se deberán considerar:
-
-### Touch
-
-Los elementos interactivos deberán tener un tamaño adecuado para ser utilizados mediante una pantalla táctil.
-
-### Jerarquía visual
-
-La información más importante deberá aparecer primero.
-
-### Navegación simple
-
-Se deberá reducir la cantidad de pasos necesarios para realizar operaciones frecuentes.
-
-### Contenido
-
-Se evitarán interfaces excesivamente cargadas.
-
-### Formularios
-
-Los formularios deberán estar organizados verticalmente y utilizar controles apropiados.
-
-Ejemplo:
+El flujo principal será:
 
 ```text
-┌──────────────────────────────┐
-│ ← Restaurante                │
-├──────────────────────────────┤
-│                              │
-│ Nombre                       │
-│ ┌──────────────────────────┐ │
-│ │ Restaurante El Sabor     │ │
-│ └──────────────────────────┘ │
-│                              │
-│ Ubicación                    │
-│ ┌──────────────────────────┐ │
-│ │ Av. Principal 123        │ │
-│ └──────────────────────────┘ │
-│                              │
-│ Teléfono                     │
-│ ┌──────────────────────────┐ │
-│ │ 0343...                  │ │
-│ └──────────────────────────┘ │
-│                              │
-│       [ Guardar cambios ]    │
-│                              │
-└──────────────────────────────┘
-```
-
----
-
-# 11. Manejo de Estados
-
-Las solicitudes a la API deberán contemplar diferentes estados.
-
-```text
-                    Solicitud
+                    ┌──────────┐
+                    │  Login   │
+                    └────┬─────┘
+                         │
+                         ▼
+                  ┌──────────────┐
+                  │    Inicio    │
+                  └──────┬───────┘
+                         │
+                         ▼
+                ┌─────────────────┐
+                │  Restaurantes   │
+                └────────┬────────┘
+                         │
+                         ▼
+               ┌──────────────────┐
+               │ Detalle          │
+               │ Restaurante      │
+               └────────┬─────────┘
                         │
                         ▼
-                    Loading
-                   /       \
-                  /         \
-                 ▼           ▼
-              Success       Error
-                 │           │
-                 ▼           ▼
-             Actualizar    Mostrar
-                 UI         mensaje
+               ┌──────────────────┐
+               │      Mesas       │
+               └────────┬─────────┘
+                        │
+             ┌──────────┼──────────┐
+             ▼          ▼          ▼
+           Crear      Editar     Eliminar
+             │
+             ▼
+       Cambiar estado
 ```
 
-Por ejemplo:
+También deberá existir una sección pública que pueda consultarse sin iniciar sesión:
 
 ```text
-Cargando mesas...
+Inicio
+  │
+  ▼
+Restaurantes disponibles
+  │
+  ├── Restaurante A
+  ├── Restaurante B
+  └── Restaurante C
 ```
 
-o:
-
-```text
-No se pudieron cargar las mesas.
-[ Reintentar ]
-```
+La navegación deberá estar diseñada específicamente teniendo en cuenta el uso desde dispositivos móviles.
 
 ---
 
 # 12. Validaciones y Errores
 
-El frontend podrá realizar validaciones básicas antes de enviar los datos.
+El frontend deberá realizar validaciones básicas antes de enviar información a la API.
 
-Ejemplo:
+Por ejemplo:
 
 ```text
-Nombre:
-    requerido
+Nombre del restaurante
+    └── obligatorio
 
-Cantidad de sillas:
-    requerido
-    entero
-    mayor que 0
+Email
+    └── formato válido
+
+Cantidad de sillas
+    ├── obligatoria
+    ├── número entero
+    └── mayor que 0
 ```
+
+Estas validaciones tienen como objetivo mejorar la experiencia del usuario y evitar solicitudes innecesarias.
 
 Sin embargo:
 
-> **Las validaciones realizadas en el frontend no reemplazan las validaciones de la API.**
+> **Las validaciones realizadas en el frontend no reemplazan las validaciones del backend.**
 
-La API deberá validar nuevamente toda información recibida.
+La API siempre deberá validar nuevamente los datos recibidos.
 
 ---
 
 ## Códigos HTTP
 
-El frontend deberá interpretar correctamente las respuestas:
+El frontend deberá interpretar correctamente las respuestas de la API.
 
 ```text
 200 OK
+    Operación exitosa.
+
 201 Created
+    Recurso creado correctamente.
+
 204 No Content
+    Operación exitosa sin contenido.
 
 400 Bad Request
+    Solicitud incorrecta.
+
 401 Unauthorized
+    Token ausente, inválido o expirado.
+
 403 Forbidden
+    Usuario sin permisos.
+
 404 Not Found
+    Recurso inexistente.
+
 409 Conflict
+    Conflicto con el estado actual.
+
 422 Unprocessable Entity
+    Error de validación.
+
 500 Internal Server Error
+    Error inesperado del servidor.
 ```
 
-Ejemplo:
+Los códigos HTTP no deberán mostrarse directamente al usuario como única información.
+
+Por ejemplo, ante un:
 
 ```text
-401
- │
- ▼
-Sesión inválida
- │
- ▼
-Eliminar sesión local
- │
- ▼
-Redirigir a Login
+422 Unprocessable Entity
+```
+
+la interfaz podrá mostrar:
+
+```text
+Hay errores en los datos ingresados.
+Revisá los campos marcados.
 ```
 
 ---
 
 # 13. Seguridad
 
-El frontend deberá:
+El frontend deberá contemplar las siguientes medidas:
 
-- No almacenar contraseñas.
-- No exponer información sensible.
-- Utilizar HTTPS en producción.
-- Utilizar JWT únicamente cuando corresponda.
-- Manejar expiración de sesión.
-- No confiar exclusivamente en las validaciones del cliente.
-- Evitar insertar contenido HTML arbitrario proveniente de usuarios.
-- Utilizar variables de entorno para configurar la API.
+* No almacenar contraseñas.
+* No mostrar contraseñas en texto plano.
+* No exponer información sensible innecesariamente.
+* Utilizar JWT para las solicitudes autenticadas.
+* No confiar exclusivamente en las validaciones del cliente.
+* Utilizar HTTPS en producción.
+* Manejar correctamente un JWT expirado o inválido.
+* Evitar insertar HTML arbitrario proveniente de datos externos.
+* No incluir claves privadas dentro del código frontend.
+* Configurar la URL de la API mediante variables de entorno o configuración del proyecto.
 
 Ejemplo:
 
 ```env
-VITE_API_URL=http://localhost:8000/api
+API_URL=http://localhost:8000/api
 ```
+
+El frontend debe considerarse un entorno potencialmente accesible para el usuario.
+
+Por lo tanto, **ningún secreto real deberá almacenarse en el código JavaScript enviado al navegador**.
 
 ---
 
 # 14. Requisitos No Funcionales
 
-### RNF-MOBILE-01 — Diseño Mobile First
+### RNF-MOBILE-01 — Usabilidad
 
-La interfaz deberá priorizar dispositivos móviles.
+La interfaz deberá ser sencilla de utilizar mediante pantallas táctiles.
 
-### RNF-MOBILE-02 — Usabilidad
+### RNF-MOBILE-02 — Diseño Mobile First
 
-La aplicación deberá ser sencilla de utilizar mediante pantallas táctiles.
+La interfaz deberá diseñarse inicialmente para dispositivos móviles.
 
 ### RNF-MOBILE-03 — Adaptabilidad
 
-La interfaz deberá continuar siendo funcional en diferentes tamaños de pantalla.
+La aplicación deberá continuar siendo funcional en diferentes tamaños de pantalla.
 
 ### RNF-MOBILE-04 — Navegación
 
-La navegación deberá estar diseñada teniendo en cuenta las limitaciones de las pantallas pequeñas.
+La navegación deberá estar optimizada para pantallas pequeñas y reducir pasos innecesarios.
 
 ### RNF-MOBILE-05 — Separación de responsabilidades
 
-La presentación deberá mantenerse separada de la comunicación con la API.
+La interfaz, la lógica JavaScript y el acceso a la API deberán mantenerse separados.
 
 ### RNF-MOBILE-06 — Manejo de errores
 
-Los errores deberán comunicarse claramente al usuario.
+Los errores de red y las respuestas de la API deberán procesarse correctamente.
 
 ### RNF-MOBILE-07 — Estados de carga
 
-Las operaciones asíncronas deberán mostrar un indicador apropiado.
+Las operaciones que dependan de la red deberán informar al usuario mientras se encuentran en proceso.
 
 ### RNF-MOBILE-08 — Seguridad
 
-No se deberán almacenar contraseñas ni exponer información sensible.
+El frontend no deberá almacenar contraseñas ni exponer información sensible.
 
-### RNF-MOBILE-09 — Independencia
+### RNF-MOBILE-09 — Independencia del backend
 
 El frontend no deberá acceder directamente a MySQL.
+
+### RNF-MOBILE-10 — Compatibilidad
+
+La aplicación deberá funcionar correctamente en navegadores modernos utilizados habitualmente en dispositivos móviles.
 
 ---
 
 # 15. Etapas de Desarrollo
 
-- [ ] **Etapa 1 — Inicialización:** Crear proyecto, configurar Git y dependencias.
-- [ ] **Etapa 2 — Diseño:** Crear wireframes orientados a dispositivos móviles.
-- [ ] **Etapa 3 — Navegación:** Definir rutas y flujo entre pantallas.
-- [ ] **Etapa 4 — API Client:** Configurar comunicación HTTP con el backend.
-- [ ] **Etapa 5 — Autenticación:** Implementar login, JWT y sesión.
-- [ ] **Etapa 6 — Restaurantes:** Implementar listado y CRUD.
-- [ ] **Etapa 7 — Mesas:** Implementar listado y CRUD.
-- [ ] **Etapa 8 — Estados:** Implementar cambio rápido de estado.
-- [ ] **Etapa 9 — Vista pública:** Implementar consulta de restaurantes.
-- [ ] **Etapa 10 — Mobile First:** Ajustar interfaz, navegación y componentes.
-- [ ] **Etapa 11 — Responsive:** Comprobar funcionamiento en diferentes resoluciones.
-- [ ] **Etapa 12 — Testing:** Probar navegación, formularios, API y errores.
-- [ ] **Etapa 13 — Documentación:** Completar README y documentación técnica.
+* [ ] **Etapa 1 — Inicialización:** Crear el proyecto y configurar Git.
+* [ ] **Etapa 2 — Elección tecnológica:** Definir JavaScript puro o framework JavaScript.
+* [ ] **Etapa 3 — Diseño:** Crear wireframes orientados a dispositivos móviles.
+* [ ] **Etapa 4 — Navegación:** Definir las páginas, rutas y flujo de navegación.
+* [ ] **Etapa 5 — Cliente HTTP:** Configurar la comunicación con la API.
+* [ ] **Etapa 6 — Autenticación:** Implementar login y manejo del JWT.
+* [ ] **Etapa 7 — Restaurantes:** Implementar listado, creación, edición y eliminación.
+* [ ] **Etapa 8 — Mesas:** Implementar listado, creación, edición y eliminación.
+* [ ] **Etapa 9 — Cambio de estado:** Implementar `PATCH /api/tables/{id}/status`.
+* [ ] **Etapa 10 — Consulta pública:** Implementar listado de restaurantes ordenados por disponibilidad.
+* [ ] **Etapa 11 — Validaciones:** Incorporar validaciones de formularios.
+* [ ] **Etapa 12 — Manejo de errores:** Implementar estados de loading, errores y respuestas HTTP.
+* [ ] **Etapa 13 — Diseño Mobile First:** Optimizar componentes, tamaños, navegación e interacción táctil.
+* [ ] **Etapa 14 — Testing:** Probar funcionalidades, navegación, autenticación y comunicación con la API.
+* [ ] **Etapa 15 — Documentación:** Completar documentación técnica y decisiones de diseño.
 
 ---
 
-# 16. Diferencias con el Frontend Web
+# 16. Diferencias entre los Frontends
 
-Los dos proyectos son **aplicaciones web independientes**.
-
-No se trata de una aplicación Android y otra Web.
-
-Ambos utilizan:
-
-- Navegador.
-- HTTP.
-- JSON.
-- API REST.
-- JWT.
-- HTML/CSS/JavaScript o el framework seleccionado.
-
-La diferencia está principalmente en las decisiones de interfaz y navegación.
-
-| Característica | Frontend Web | Frontend Mobile |
-|---|---|---|
-| Tipo | Aplicación Web | Aplicación Web |
-| Enfoque | Desktop-oriented | Mobile-oriented |
-| Diseño | Pensado primero para escritorio | Mobile First |
-| Pantalla principal | Dashboard amplio | Vista compacta |
-| Navegación | Menús laterales/superiores | Navegación simplificada |
-| Tablas | Mayor cantidad de información visible | Información resumida |
-| Formularios | Pueden utilizar varias columnas | Principalmente verticales |
-| Interacción | Mouse + teclado + touch | Principalmente touch |
-| Componentes | Más información simultánea | Componentes compactos |
-| API | Misma | Misma |
-
----
-
-## ¿Por qué dos Frontends?
-
-En un proyecto real, probablemente se desarrollaría **un único frontend responsive** capaz de adaptarse a diferentes dispositivos.
-
-En este proyecto se desarrollan dos clientes separados por motivos académicos.
-
-Esto permite comparar:
+Los dos proyectos son **aplicaciones web independientes** que consumen exactamente la misma API.
 
 ```text
-              MISMA API
-                  │
-        ┌─────────┴─────────┐
-        │                   │
-        ▼                   ▼
-   FRONTEND WEB        FRONTEND MOBILE
-        │                   │
-        ▼                   ▼
- Desktop-oriented       Mobile First
-        │                   │
-        ▼                   ▼
- Navegación propia     Navegación propia
-        │                   │
-        ▼                   ▼
- Estilos propios       Estilos propios
+                         ┌──────────────┐
+                         │     API      │
+                         │ REST / JSON  │
+                         │     JWT      │
+                         └───────┬──────┘
+                                 │
+                  ┌──────────────┴──────────────┐
+                  │                             │
+                  ▼                             ▼
+        ┌──────────────────┐          ┌──────────────────┐
+        │   FRONTEND WEB   │          │ FRONTEND MOBILE  │
+        │                  │          │                  │
+        │ Desktop-oriented │          │ Mobile First     │
+        │                  │          │                  │
+        │ HTML/CSS/JS      │          │ HTML/CSS/JS      │
+        │                  │          │                  │
+        │ Framework        │          │ Framework        │
+        │ opcional         │          │ opcional         │
+        └──────────────────┘          └──────────────────┘
 ```
 
-El objetivo es demostrar que **la API permanece independiente de la interfaz**.
+La API no deberá saber qué frontend realizó una solicitud.
 
 Por ejemplo, ambos clientes pueden ejecutar:
 
@@ -730,26 +898,65 @@ Por ejemplo, ambos clientes pueden ejecutar:
 PATCH /api/tables/15/status
 ```
 
-La API recibe exactamente la misma solicitud, independientemente de cuál frontend la origine.
+La API procesa la solicitud de la misma manera.
+
+La diferencia se encuentra en la interfaz, navegación y experiencia de usuario.
 
 ---
 
-## Objetivo académico
+## Diferencias principales
 
-El desarrollo de este segundo frontend busca comprender:
+| Característica     | Frontend Web                          | Frontend Mobile             |
+| ------------------ | ------------------------------------- | --------------------------- |
+| Tipo               | Aplicación Web                        | Aplicación Web              |
+| Tecnologías        | HTML/CSS/JS                           | HTML/CSS/JS                 |
+| Framework          | Opcional                              | Opcional                    |
+| Enfoque            | Desktop-oriented                      | Mobile First                |
+| Pantalla principal | Mayor cantidad de información         | Información resumida        |
+| Navegación         | Menús y layouts amplios               | Navegación simplificada     |
+| Formularios        | Pueden utilizar varias columnas       | Principalmente verticales   |
+| Tablas             | Mayor cantidad de información visible | Tarjetas/listados compactos |
+| Interacción        | Mouse + teclado + touch               | Principalmente touch        |
+| API                | Misma                                 | Misma                       |
+| Base de datos      | No accede directamente                | No accede directamente      |
 
-- Arquitectura cliente-servidor.
-- Separación entre frontend y backend.
-- Consumo de APIs REST.
-- HTTP y JSON.
-- Autenticación mediante JWT.
-- Diseño Mobile First.
-- Diseño responsive.
-- Navegación web.
-- Organización de componentes.
-- Manejo de estados.
-- Validaciones del cliente.
-- Manejo de errores HTTP.
-- Reutilización de un mismo backend desde diferentes clientes.
+---
 
-La comparación entre ambos frontends permite observar que **la misma lógica de negocio puede ser utilizada por diferentes interfaces sin modificar la API**.
+# 17. Objetivo Académico
+
+El desarrollo de dos frontends separados permitirá demostrar que una API REST puede ser utilizada por diferentes clientes sin modificar el backend.
+
+```text
+                         ┌──────────────┐
+                         │     API      │
+                         └───────┬──────┘
+                                 │
+                 ┌───────────────┼───────────────┐
+                 │               │               │
+                 ▼               ▼               ▼
+              Web            Mobile          Futuro
+                 │               │               │
+                 ▼               ▼               ▼
+              Cliente        Cliente        Otro cliente
+               Web            Web
+```
+
+El objetivo es comprender:
+
+* Arquitectura cliente-servidor.
+* APIs REST.
+* HTTP.
+* JSON.
+* JWT.
+* Consumo de APIs desde JavaScript.
+* Separación entre frontend y backend.
+* Manejo de estados.
+* Navegación web.
+* Diseño responsive.
+* Diseño Mobile First.
+* Validaciones.
+* Manejo de errores.
+* Organización de proyectos frontend.
+* Diferencias entre diseñar para escritorio y diseñar para dispositivos móviles.
+
+En un proyecto real, estas dos interfaces podrían formar parte de **un único frontend responsive**.
