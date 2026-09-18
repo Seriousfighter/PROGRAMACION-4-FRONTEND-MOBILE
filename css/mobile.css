@@ -1,0 +1,257 @@
+/* =========================================================
+   MOBILE — Estilos específicos para dispositivos móviles
+   - Safe areas (iPhone notch)
+   - Botón flotante "back to top" (abajo izquierda)
+   - Ajustes de layout para pantallas chicas
+   - Touch targets más grandes
+   ========================================================= */
+
+/* ---------- Variables ---------- */
+:root {
+    --safe-top:    env(safe-area-inset-top, 0px);
+    --safe-right:  env(safe-area-inset-right, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left:   env(safe-area-inset-left, 0px);
+
+    --fab-size: 52px;
+    --fab-offset: 20px;
+}
+
+/* ---------- Body con safe areas ---------- */
+body {
+    padding-top: var(--safe-top);
+    padding-left: var(--safe-left);
+    padding-right: var(--safe-right);
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: contain;
+}
+
+/* ---------- Botón flotante "back to top" ---------- */
+.back-to-top {
+    position: fixed;
+    bottom: calc(var(--fab-offset) + var(--safe-bottom));
+    left: calc(var(--fab-offset) + var(--safe-left));
+    width: var(--fab-size);
+    height: var(--fab-size);
+    border-radius: 50%;
+    background: var(--wine);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    line-height: 1;
+    box-shadow: 0 8px 24px rgba(139, 30, 63, 0.35);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: opacity 0.25s ease, visibility 0.25s ease, transform 0.25s ease, background 0.15s;
+}
+
+.back-to-top.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.back-to-top:active {
+    background: var(--wine-dark);
+    transform: scale(0.95);
+}
+
+/* ---------- Ajustes generales mobile ---------- */
+.container {
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+/* ---------- Header compacto ---------- */
+.app-header__inner {
+    height: 56px;
+}
+
+.app-header__logo {
+    font-size: 1.05rem;
+    gap: 8px;
+}
+
+.logo-icon {
+    font-size: 1.3rem;
+}
+
+.btn-sm {
+    padding: 8px 14px;
+    font-size: 0.82rem;
+}
+
+/* ---------- Hero compacto ---------- */
+.hero {
+    padding: 40px 0 32px;
+}
+
+.hero__eyebrow {
+    font-size: 0.7rem;
+    padding: 5px 14px;
+    letter-spacing: 0.12em;
+}
+
+.hero__title {
+    font-size: 2rem;
+    line-height: 1.15;
+}
+
+.hero__title::after {
+    width: 50px;
+    margin-top: 14px;
+}
+
+.hero__subtitle {
+    font-size: 0.95rem;
+    padding: 0 8px;
+}
+
+/* ---------- Stats compactas ---------- */
+.stats-section {
+    margin-top: -20px;
+    margin-bottom: 28px;
+}
+
+.stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.stat-card {
+    padding: 14px 8px;
+    border-radius: 12px;
+}
+
+.stat-card__icon {
+    font-size: 1.2rem;
+    margin-bottom: 4px;
+}
+
+.stat-card__value {
+    font-size: 1.3rem;
+}
+
+.stat-card__value--text {
+    font-size: 0.85rem;
+    padding: 0 4px;
+    line-height: 1.2;
+    min-height: 1.2em;
+}
+
+.stat-card__label {
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+}
+
+/* ---------- Toolbar (buscador + orden) ---------- */
+.toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.toolbar__search {
+    flex: 1 1 auto;
+}
+
+.toolbar__search input {
+    padding: 14px 16px 14px 44px;
+    font-size: 0.95rem;
+}
+
+.toolbar__search-icon {
+    left: 16px;
+}
+
+.toolbar__sort {
+    justify-content: space-between;
+    font-size: 0.85rem;
+}
+
+.toolbar__sort select {
+    flex: 1;
+    padding: 12px 14px;
+    font-size: 0.9rem;
+    max-width: 60%;
+}
+
+/* ---------- Cards (tipo Instagram) ---------- */
+.cards-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+}
+
+.card {
+    border-radius: 12px;
+}
+
+.restaurant-card {
+    padding: 20px;
+    gap: 12px;
+}
+
+.restaurant-card__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.restaurant-card__name {
+    font-size: 1.25rem;
+}
+
+.restaurant-card__meta li {
+    font-size: 0.88rem;
+    gap: 6px;
+}
+
+.restaurant-card__description {
+    font-size: 0.9rem;
+    -webkit-line-clamp: 4;
+}
+
+.availability-number strong {
+    font-size: 1.9rem;
+}
+
+.availability-number span {
+    font-size: 0.82rem;
+}
+
+/* ---------- Footer ---------- */
+.app-footer {
+    padding: 24px 0 calc(24px + var(--safe-bottom));
+    font-size: 0.82rem;
+}
+
+/* ---------- Ajustes de estado (loading/error) ---------- */
+.state-block {
+    padding: 60px 20px;
+}
+
+/* ---------- Botones más táctiles ---------- */
+.btn {
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    min-height: 44px;
+}
+
+.btn-sm {
+    min-height: 36px;
+}
+
+/* ---------- Ajustes muy chicos (≤ 380px) ---------- */
+@media (max-width: 380px) {
+    .hero__title { font-size: 1.75rem; }
+    .stat-card { padding: 12px 6px; }
+    .stat-card__value { font-size: 1.15rem; }
+    .stat-card__label { font-size: 0.6rem; }
+}

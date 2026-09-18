@@ -1,7 +1,12 @@
 /* =========================================================
-   Página pública de restaurantes
+   Página pública de restaurantes (mobile)
+   - Carga los restaurantes desde la API
+   - Permite buscar y ordenar
+   - Muestra estadísticas generales
+   - Botón flotante "volver arriba"
    ========================================================= */
 (function () {
+    /* ---------- Referencias al DOM ---------- */
     const grid          = document.getElementById('restaurants-grid');
     const loading       = document.getElementById('loading');
     const errorBox      = document.getElementById('error-box');
@@ -12,13 +17,16 @@
     const statsSection  = document.getElementById('stats-section');
     const searchInput   = document.getElementById('search-input');
     const sortSelect    = document.getElementById('sort-select');
+    const backToTop     = document.getElementById('back-to-top');
 
     const statRestaurants = document.getElementById('stat-restaurants');
     const statAvailable   = document.getElementById('stat-available');
     const statBest        = document.getElementById('stat-best');
 
+    /* ---------- Estado ---------- */
     let allRestaurants = [];
 
+    /* ---------- Helpers de UI ---------- */
     function show(el) {
         [loading, errorBox, emptyBox, grid, toolbar, statsSection]
             .forEach(e => e.hidden = true);
@@ -30,18 +38,19 @@
 
         const a = r.available_tables;
         if (a === 0)  return { cls: 'badge-danger',  text: 'Sin disponibilidad' };
-        if (a <= 2)   return { cls: 'badge-warning', text: 'Disponibilidad limitada' };
-        if (a <= 5)   return { cls: 'badge-info',    text: 'Buena disponibilidad' };
-        return          { cls: 'badge-success', text: 'Excelente disponibilidad' };
+        if (a <= 2)   return { cls: 'badge-warning', text: 'Disp. limitada' };
+        if (a <= 5)   return { cls: 'badge-info',    text: 'Buena disp.' };
+        return          { cls: 'badge-success', text: 'Excelente disp.' };
     }
 
+    /* ---------- Construcción de tarjeta ---------- */
     function buildCard(r, index) {
         const available = r.available_tables;
         const total     = r.total_tables;
         const pct       = total > 0 ? (available / total) * 100 : 0;
         const badge     = badgeFor(r);
 
-        // Animación escalonada (cada tarjeta aparece un poquito después)
+        // Animación escalonada
         const delay = Math.min(index * 40, 400);
 
         return `
@@ -75,6 +84,7 @@
         `;
     }
 
+    /* ---------- Estadísticas ---------- */
     function renderStats(list) {
         if (list.length === 0) return;
 
@@ -89,6 +99,7 @@
         statBest.textContent        = best.available_tables > 0 ? best.name : '—';
     }
 
+    /* ---------- Filtro + orden ---------- */
     function applyFilters() {
         const query = searchInput.value.trim().toLowerCase();
         const sort  = sortSelect.value;
@@ -123,6 +134,7 @@
         }
     }
 
+    /* ---------- Carga inicial ---------- */
     async function load() {
         show(loading);
         try {
@@ -148,8 +160,27 @@
         }
     }
 
+    /* ---------- Listener del buscador y orden ---------- */
     searchInput.addEventListener('input', applyFilters);
     sortSelect.addEventListener('change', applyFilters);
 
+    /* ---------- Botón "volver arriba" ---------- */
+    const SCROLL_THRESHOLD = 400;
+
+    function updateBackToTop() {
+        if (window.scrollY > SCROLL_THRESHOLD) {
+            backToTop.classList.add('is-visible');
+        } else {
+            backToTop.classList.remove('is-visible');
+        }
+    }
+
+    window.addEventListener('scroll', updateBackToTop, { passive: true });
+
+    backToTop.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    /* ---------- Init ---------- */
     load();
 })();
