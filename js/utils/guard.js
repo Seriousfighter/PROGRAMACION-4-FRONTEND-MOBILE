@@ -17,7 +17,7 @@ const Guard = {
        Si ya lo está, lo redirige al dashboard. */
     requireGuest() {
         if (Session.isLogged()) {
-            UI.redirect('dashboard.html');
+            UI.redirect('home.html');
             return false;
         }
         return true;
