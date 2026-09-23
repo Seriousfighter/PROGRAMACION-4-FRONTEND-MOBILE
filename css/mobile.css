@@ -297,23 +297,51 @@ body {
     border-radius: var(--radius-full);
 }
 
-/* Fila 5: link a Google Maps */
+/* ---------- Footer de la card: contador + link Maps ---------- */
+.restaurant-row__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 2px;
+}
+
+.restaurant-row__count {
+    color: var(--muted);
+    font-size: 0.78rem;
+    margin: 0;
+    flex-shrink: 1;
+    min-width: 0;
+}
+
+.restaurant-row__count strong {
+    color: var(--wine);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-right: 2px;
+}
+
 .restaurant-row__maps {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    font-size: 0.78rem;
-    font-weight: 500;
+    font-size: 0.72rem;
+    font-weight: 600;
     color: var(--wine);
     text-decoration: none;
-    margin-top: 4px;
-    align-self: flex-start;
-    transition: color 0.15s;
+    padding: 4px 10px;
+    border: 1px solid var(--wine-light);
+    border-radius: var(--radius-full);
+    background: var(--wine-light);
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
 }
 
 .restaurant-row__maps:active {
-    color: var(--wine-dark);
-    text-decoration: underline;
+    background: var(--wine);
+    color: #fff;
 }
 
 /* ---------------------------------------------------------

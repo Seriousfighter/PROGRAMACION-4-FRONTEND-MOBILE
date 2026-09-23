@@ -61,19 +61,20 @@
                 ? `<p class="restaurant-row__desc">"${UI.escape(r.description)}"</p>`
                 : ''}
 
-                <p class="restaurant-row__count">
-                    <strong>${available}</strong> de ${total} mesas disponibles
-                </p>
+                <div class="restaurant-row__footer">
+                    <p class="restaurant-row__count">
+                        <strong>${available}</strong> de ${total} disponibles
+                    </p>
+                    <a href="${mapsUrl}" target="_blank" rel="noopener"
+                       class="restaurant-row__maps">
+                        📍 Ver en Maps
+                    </a>
+                </div>
 
                 <div class="availability-bar">
                     <div class="availability-bar__fill"
                          style="width: ${pct.toFixed(1)}%"></div>
                 </div>
-
-                <a href="${mapsUrl}" target="_blank" rel="noopener"
-                   class="restaurant-row__maps">
-                    📍 Ver en Google Maps
-                </a>
             </article>
         `;
     }
