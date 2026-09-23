@@ -1,23 +1,25 @@
 /* =========================================================
-   MOBILE — Estilos específicos para dispositivos móviles
+   MOBILE — Estilos para dispositivos móviles
    - Safe areas (iPhone notch)
-   - Botón flotante "back to top" (abajo izquierda)
-   - Ajustes de layout para pantallas chicas
-   - Touch targets más grandes
+   - Header compacto
+   - Buscador desplegable
+   - Cards de restaurantes compactas
+   - Botón flotante "volver arriba"
    ========================================================= */
 
-/* ---------- Variables ---------- */
+/* ---------------------------------------------------------
+   Variables
+   --------------------------------------------------------- */
 :root {
     --safe-top:    env(safe-area-inset-top, 0px);
     --safe-right:  env(safe-area-inset-right, 0px);
     --safe-bottom: env(safe-area-inset-bottom, 0px);
     --safe-left:   env(safe-area-inset-left, 0px);
-
-    --fab-size: 52px;
-    --fab-offset: 20px;
 }
 
-/* ---------- Body con safe areas ---------- */
+/* ---------------------------------------------------------
+   Body con safe areas
+   --------------------------------------------------------- */
 body {
     padding-top: var(--safe-top);
     padding-left: var(--safe-left);
@@ -26,274 +28,818 @@ body {
     overscroll-behavior-y: contain;
 }
 
-/* ---------- Botón flotante "back to top" ---------- */
+/* ---------------------------------------------------------
+   Header compacto
+   --------------------------------------------------------- */
+.app-header__inner {
+    height: 56px;
+    padding: 0 16px;
+}
+
+.app-header__logo {
+    font-size: 1rem;
+    gap: 8px;
+}
+
+.logo-mark {
+    width: 8px;
+    height: 8px;
+}
+
+.app-header__actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.icon-btn {
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    color: var(--ink);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    text-decoration: none;
+    padding: 0;
+}
+
+.icon-btn:hover,
+.icon-btn:active {
+    background: var(--cream);
+    border-color: var(--border);
+}
+
+.icon-btn svg {
+    display: block;
+}
+
+/* ---------------------------------------------------------
+   Buscador desplegable
+   --------------------------------------------------------- */
+.search-panel {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 12px 16px;
+    animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.search-panel__inner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    padding: 8px 12px;
+}
+
+.search-panel__inner:focus-within {
+    border-color: var(--wine);
+    box-shadow: 0 0 0 3px rgba(139, 30, 63, 0.10);
+}
+
+.search-panel__icon {
+    color: var(--muted);
+    font-size: 0.95rem;
+    flex-shrink: 0;
+}
+
+.search-panel__inner input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: var(--ink);
+    padding: 4px 0;
+    min-width: 0;
+}
+
+.search-panel__close {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.search-panel__close:active {
+    background: var(--border);
+}
+
+/* ---------------------------------------------------------
+   Hero compacto
+   --------------------------------------------------------- */
+.hero {
+    padding: 20px 16px 16px;
+    text-align: center;
+}
+
+.hero__eyebrow {
+    font-size: 0.62rem;
+    padding: 3px 10px;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+}
+
+.hero__title {
+    font-size: 1.4rem;
+    margin-bottom: 6px;
+}
+
+.hero__title::after {
+    width: 32px;
+    height: 2px;
+    margin-top: 8px;
+}
+
+.hero__subtitle {
+    font-size: 0.82rem;
+}
+
+/* ---------------------------------------------------------
+   Lista de restaurantes
+   --------------------------------------------------------- */
+.public-main {
+    padding: 0 14px 32px;
+}
+
+.restaurants-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* ---------------------------------------------------------
+   Card de restaurante (compacta, rectangular)
+   --------------------------------------------------------- */
+.restaurant-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.35s ease-out both;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* Detalle dorado a la izquierda */
+.restaurant-row::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--wine) 0%, var(--gold) 100%);
+}
+
+/* Fila 1: nombre + info */
+.restaurant-row__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.restaurant-row__name {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    flex-shrink: 0;
+}
+
+.restaurant-row__info {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    font-size: 0.72rem;
+    color: var(--muted);
+    flex-shrink: 1;
+    min-width: 0;
+    margin-left: auto;
+    text-align: right;
+}
+
+.restaurant-row__phone {
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+.restaurant-row__address {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Fila 2: descripción */
+.restaurant-row__desc {
+    color: var(--ink-soft);
+    font-size: 0.8rem;
+    font-style: italic;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Fila 3: disponibilidad */
+.restaurant-row__count {
+    color: var(--muted);
+    font-size: 0.78rem;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+.restaurant-row__count strong {
+    color: var(--wine);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-right: 2px;
+}
+
+/* Fila 4: barra de progreso */
+.restaurant-row .availability-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.restaurant-row .availability-bar__fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--success) 0%, #4CAF50 100%);
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: var(--radius-full);
+}
+
+/* Fila 5: link a Google Maps */
+.restaurant-row__maps {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--wine);
+    text-decoration: none;
+    margin-top: 4px;
+    align-self: flex-start;
+    transition: color 0.15s;
+}
+
+.restaurant-row__maps:active {
+    color: var(--wine-dark);
+    text-decoration: underline;
+}
+
+/* ---------------------------------------------------------
+   Botón flotante "volver arriba"
+   --------------------------------------------------------- */
 .back-to-top {
     position: fixed;
-    bottom: calc(var(--fab-offset) + var(--safe-bottom));
-    left: calc(var(--fab-offset) + var(--safe-left));
-    width: var(--fab-size);
-    height: var(--fab-size);
+    bottom: calc(20px + var(--safe-bottom));
+    left: calc(20px + var(--safe-left));
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
-    background: var(--wine);
+    background: linear-gradient(135deg, #8B1E3F 0%, #6B1530 100%);
     color: #fff;
-    border: none;
+    border: 3px solid #C9A961;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.4rem;
-    line-height: 1;
-    box-shadow: 0 8px 24px rgba(139, 30, 63, 0.35);
+    box-shadow:
+        0 8px 20px rgba(139, 30, 63, 0.40),
+        0 2px 6px rgba(0, 0, 0, 0.15),
+        0 0 0 4px rgba(201, 169, 97, 0.15);
     z-index: 999;
     opacity: 0;
     visibility: hidden;
-    transform: translateY(20px);
-    transition: opacity 0.25s ease, visibility 0.25s ease, transform 0.25s ease, background 0.15s;
+    transform: translateY(20px) scale(0.9);
+    transition:
+        opacity 0.25s ease,
+        visibility 0.25s ease,
+        transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+        box-shadow 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    padding: 0;
 }
 
 .back-to-top.is-visible {
     opacity: 1;
     visibility: visible;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+    animation: pulse-gold 2.5s ease-in-out infinite;
 }
 
 .back-to-top:active {
-    background: var(--wine-dark);
-    transform: scale(0.95);
+    background: linear-gradient(135deg, #6B1530 0%, #8B1E3F 100%);
+    transform: scale(0.92);
 }
 
-/* ---------- Ajustes generales mobile ---------- */
-.container {
-    padding-left: 16px;
-    padding-right: 16px;
+.back-to-top svg {
+    display: block;
+    color: #fff;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
 }
 
-/* ---------- Header compacto ---------- */
-.app-header__inner {
+@keyframes pulse-gold {
+    0%, 100% {
+        box-shadow:
+            0 8px 20px rgba(139, 30, 63, 0.40),
+            0 2px 6px rgba(0, 0, 0, 0.15),
+            0 0 0 4px rgba(201, 169, 97, 0.15);
+    }
+    50% {
+        box-shadow:
+            0 8px 20px rgba(139, 30, 63, 0.40),
+            0 2px 6px rgba(0, 0, 0, 0.15),
+            0 0 0 8px rgba(201, 169, 97, 0.05);
+    }
+}
+
+/* ---------------------------------------------------------
+   Footer
+   --------------------------------------------------------- */
+.app-footer {
+    margin-top: 24px;
+    padding: 18px 16px;
+    font-size: 0.78rem;
+}
+/* =========================================================
+   Toasts en mobile (abajo de la pantalla)
+   ========================================================= */
+.toast {
+    top: auto !important;
+    bottom: calc(90px + env(safe-area-inset-bottom, 0px)) !important;
+    left: 16px !important;
+    right: 16px !important;
+    max-width: none !important;
+    width: auto !important;
+    text-align: center;
+    animation: toastInUp 0.25s ease-out;
+    font-size: 0.9rem;
+    padding: 14px 18px;
+    box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.20),
+        0 2px 8px rgba(0, 0, 0, 0.10);
+    border-radius: 10px;
+}
+
+@keyframes toastInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.toast-hide {
+    opacity: 0;
+    transform: translateY(20px) !important;
+    transition: opacity 0.3s, transform 0.3s;
+}
+/* =========================================================
+   PANEL DE MESAS (mobile)
+   ========================================================= */
+
+/* ---------- Navbar ---------- */
+.app-navbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-sm);
+}
+
+.app-navbar__inner {
+    padding: 0 16px;
     height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
-.app-header__logo {
-    font-size: 1.05rem;
+.app-navbar__brand {
+    display: flex;
+    align-items: center;
     gap: 8px;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ink);
 }
 
-.logo-icon {
-    font-size: 1.3rem;
+.app-navbar__badge {
+    font-family: var(--font-sans);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--wine);
+    background: var(--wine-light);
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-left: 2px;
 }
 
-.btn-sm {
-    padding: 8px 14px;
-    font-size: 0.82rem;
+.app-navbar__actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
-/* ---------- Hero compacto ---------- */
-.hero {
-    padding: 40px 0 32px;
+.navbar-btn {
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    text-decoration: none;
+    padding: 0;
 }
 
-.hero__eyebrow {
-    font-size: 0.7rem;
-    padding: 5px 14px;
-    letter-spacing: 0.12em;
+.navbar-btn:hover,
+.navbar-btn:active {
+    background: var(--cream);
+    border-color: var(--border);
 }
 
-.hero__title {
-    font-size: 2rem;
-    line-height: 1.15;
+.navbar-btn.is-active {
+    background: var(--wine);
+    color: #fff;
+    border-color: var(--wine);
 }
 
-.hero__title::after {
-    width: 50px;
-    margin-top: 14px;
+.navbar-btn--danger:hover {
+    background: var(--danger-bg);
+    border-color: var(--danger);
+    color: var(--danger);
 }
 
-.hero__subtitle {
-    font-size: 0.95rem;
-    padding: 0 8px;
+/* ---------- Panel de mesas ---------- */
+.tables-panel {
+    padding: 24px 16px 48px;
 }
 
-/* ---------- Stats compactas ---------- */
-.stats-section {
-    margin-top: -20px;
-    margin-bottom: 28px;
+.tables-hero {
+    margin-bottom: 24px;
 }
 
-.stats-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-}
-
-.stat-card {
-    padding: 14px 8px;
-    border-radius: 12px;
-}
-
-.stat-card__icon {
+.tables-hero__title {
+    font-family: var(--font-display);
     font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--ink);
     margin-bottom: 4px;
+    text-transform: uppercase;
 }
 
-.stat-card__value {
+.tables-hero__subtitle {
+    color: var(--muted);
+    font-size: 0.88rem;
+}
+
+/* Grid fijo de 4 columnas en mobile */
+.tables-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+    padding: 8px 0;
+}
+/* ---------- Círculos 3D ---------- */
+.table-circle {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    position: relative;
+    font-family: var(--font-display);
+    font-weight: 700;
     font-size: 1.3rem;
+    color: #fff;
+    text-shadow: 0 2px 3px rgba(0, 0, 0, 0.35);
+    transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+    will-change: transform;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
 }
 
-.stat-card__value--text {
-    font-size: 0.85rem;
-    padding: 0 4px;
-    line-height: 1.2;
-    min-height: 1.2em;
+.table-circle::before {
+    content: '';
+    position: absolute;
+    top: 6%;
+    left: 15%;
+    right: 15%;
+    height: 38%;
+    border-radius: 50%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.05) 100%);
+    pointer-events: none;
 }
 
-.stat-card__label {
-    font-size: 0.65rem;
+.table-circle::after {
+    content: '';
+    position: absolute;
+    bottom: 4%;
+    left: 20%;
+    right: 20%;
+    height: 22%;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.18) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.table-circle__number {
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+    font-feature-settings: "tnum";
+    letter-spacing: -0.02em;
+}
+
+.table-circle--available {
+    background: radial-gradient(circle at 30% 25%, #4ade80 0%, #16a34a 55%, #15803d 100%);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.4) inset,
+        0 -3px 6px rgba(0, 0, 0, 0.15) inset,
+        0 6px 14px rgba(22, 163, 74, 0.35),
+        0 2px 4px rgba(0, 0, 0, 0.10);
+}
+
+.table-circle--occupied {
+    background: radial-gradient(circle at 30% 25%, #f87171 0%, #dc2626 55%, #b91c1c 100%);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.4) inset,
+        0 -3px 6px rgba(0, 0, 0, 0.15) inset,
+        0 6px 14px rgba(220, 38, 38, 0.35),
+        0 2px 4px rgba(0, 0, 0, 0.10);
+}
+
+.table-circle--reserved {
+    background: radial-gradient(circle at 30% 25%, #fcd34d 0%, #f59e0b 55%, #d97706 100%);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.5) inset,
+        0 -3px 6px rgba(0, 0, 0, 0.15) inset,
+        0 6px 14px rgba(245, 158, 11, 0.40),
+        0 2px 4px rgba(0, 0, 0, 0.10);
+    color: #7c2d12;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+.table-circle:active:not(:disabled) {
+    transform: translateY(-1px) scale(0.97);
+}
+
+.table-circle:disabled {
+    opacity: 0.55;
+    cursor: wait;
+}
+
+/* Flash al cambiar estado */
+.table-circle.is-flashing {
+    animation: flash 0.4s ease-out;
+}
+
+@keyframes flash {
+    0%   { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.8); }
+    50%  { box-shadow: 0 0 0 12px rgba(255, 255, 255, 0); }
+    100% { box-shadow: none; }
+}
+
+/* Leyenda */
+.legend {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+}
+
+.legend__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--ink);
+    text-transform: uppercase;
     letter-spacing: 0.05em;
 }
 
-/* ---------- Toolbar (buscador + orden) ---------- */
-.toolbar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
+.legend__dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.legend__dot--available { background: #16a34a; }
+.legend__dot--occupied  { background: #dc2626; }
+.legend__dot--reserved  { background: #f59e0b; }
+
+/* ---------- Modal editar (mobile) ---------- */
+.modal--large {
+    max-width: 100%;
+    max-height: 90vh;
+}
+
+.modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+
+.modal__header .modal__title {
+    margin-bottom: 0;
+}
+
+.modal__close {
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 4px;
+}
+.modal__close:active {
+    background: var(--cream);
+}
+
+/* ---------- Tabs ---------- */
+.tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--border);
     margin-bottom: 20px;
 }
 
-.toolbar__search {
-    flex: 1 1 auto;
-}
-
-.toolbar__search input {
-    padding: 14px 16px 14px 44px;
-    font-size: 0.95rem;
-}
-
-.toolbar__search-icon {
-    left: 16px;
-}
-
-.toolbar__sort {
-    justify-content: space-between;
-    font-size: 0.85rem;
-}
-
-.toolbar__sort select {
+.tab {
     flex: 1;
-    padding: 12px 14px;
-    font-size: 0.9rem;
-    max-width: 60%;
+    padding: 10px 12px;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.15s, border-color 0.15s;
 }
 
-/* ---------- Cards (tipo Instagram) ---------- */
-.cards-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
+.tab.is-active {
+    color: var(--wine);
+    border-bottom-color: var(--wine);
+    font-weight: 600;
 }
 
-.card {
-    border-radius: 12px;
+.tab-panel { display: none; }
+.tab-panel.is-active { display: block; }
+
+/* ---------- Numberbox ---------- */
+.numberbox {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    overflow: hidden;
+    max-width: 200px;
+    margin: 0 auto;
 }
 
-.restaurant-card {
-    padding: 20px;
-    gap: 12px;
+.numberbox:focus-within {
+    border-color: var(--wine);
+    box-shadow: 0 0 0 4px rgba(139, 30, 63, 0.10);
 }
 
-.restaurant-card__header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+.numberbox__btn {
+    width: 48px;
+    height: 48px;
+    background: var(--cream);
+    border: none;
+    color: var(--ink);
+    font-size: 1.4rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    padding: 0;
+}
+.numberbox__btn:active { background: var(--wine-light); }
+
+.numberbox__input {
+    flex: 1;
+    height: 48px;
+    border: none;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    text-align: center;
+    font-size: 1.05rem;
+    font-weight: 600;
+    font-family: inherit;
+    background: var(--surface);
+    color: var(--ink);
+    outline: none;
+    -moz-appearance: textfield;
+    width: 60px;
 }
 
-.restaurant-card__name {
-    font-size: 1.25rem;
+.numberbox__input::-webkit-outer-spin-button,
+.numberbox__input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
-.restaurant-card__meta li {
+.numberbox__hint {
+    margin-top: 14px;
+    color: var(--muted);
     font-size: 0.88rem;
-    gap: 6px;
+    text-align: center;
 }
 
-.restaurant-card__description {
-    font-size: 0.9rem;
-    -webkit-line-clamp: 4;
+.numberbox__hint strong {
+    color: var(--ink);
+    font-weight: 600;
 }
 
-.availability-number strong {
-    font-size: 1.9rem;
+/* Estado vacío */
+.empty-restaurant {
+    display: flex;
+    justify-content: center;
+    padding: 24px 0;
 }
 
-.availability-number span {
-    font-size: 0.82rem;
-}
-
-/* ---------- Footer ---------- */
-.app-footer {
-    padding: 24px 0 calc(24px + var(--safe-bottom));
-    font-size: 0.82rem;
-}
-
-/* ---------- Ajustes de estado (loading/error) ---------- */
-.state-block {
-    padding: 60px 20px;
-}
-
-/* ---------- Botones más táctiles ---------- */
-.btn {
-    padding: 12px 20px;
-    font-size: 0.95rem;
-    min-height: 44px;
-}
-
-.btn-sm {
-    min-height: 36px;
-}
-
-/* ---------- Ajustes muy chicos (≤ 380px) ---------- */
-@media (max-width: 380px) {
-    .hero__title { font-size: 1.75rem; }
-    .stat-card { padding: 12px 6px; }
-    .stat-card__value { font-size: 1.15rem; }
-    .stat-card__label { font-size: 0.6rem; }
-}
-
-/* =========================================================
-   Login / Registro — ajustes mobile
-   ========================================================= */
-.auth-page {
-    padding: 16px;
-    padding-top: calc(16px + var(--safe-top));
-    padding-bottom: calc(16px + var(--safe-bottom));
-}
-
-.auth-card {
+.empty-restaurant__card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     padding: 32px 24px;
+    box-shadow: var(--shadow-md);
+    text-align: center;
 }
 
-.auth-logo {
-    font-size: 2rem;
+.empty-restaurant__title {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 10px;
 }
 
-.auth-title {
-    font-size: 1.5rem;
-}
-
-.auth-subtitle {
+.empty-restaurant__text {
+    color: var(--muted);
     font-size: 0.9rem;
-    margin-bottom: 26px;
+    line-height: 1.5;
+    margin-bottom: 22px;
 }
 
-.auth-card .form-group input {
-    padding: 14px 16px;
-    font-size: 1rem;
-    min-height: 48px;   /* Touch target cómodo */
-}
-
-.auth-card .form-group label {
+/* Form section hint */
+.form-section__hint {
+    color: var(--muted);
     font-size: 0.88rem;
-}
-
-.auth-card .btn-block {
-    min-height: 48px;
-    padding: 14px 20px;
-    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 18px;
+    text-align: center;
 }
