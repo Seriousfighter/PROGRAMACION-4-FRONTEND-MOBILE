@@ -1,158 +1,121 @@
 /* =========================================================
    Página pública de restaurantes (mobile)
-   - Carga los restaurantes desde la API
-   - Permite buscar y ordenar
-   - Muestra estadísticas generales
-   - Botón flotante "volver arriba"
    ========================================================= */
 (function () {
-    /* ---------- Referencias al DOM ---------- */
-    const grid          = document.getElementById('restaurants-grid');
-    const loading       = document.getElementById('loading');
-    const errorBox      = document.getElementById('error-box');
-    const errorMsg      = document.getElementById('error-message');
-    const emptyBox      = document.getElementById('empty-box');
-    const emptyMsg      = document.getElementById('empty-message');
-    const toolbar       = document.getElementById('toolbar');
-    const statsSection  = document.getElementById('stats-section');
-    const searchInput   = document.getElementById('search-input');
-    const sortSelect    = document.getElementById('sort-select');
-    const backToTop     = document.getElementById('back-to-top');
+    const list = document.getElementById('restaurants-list');
+    const loading = document.getElementById('loading');
+    const errorBox = document.getElementById('error-box');
+    const errorMsg = document.getElementById('error-message');
+    const emptyBox = document.getElementById('empty-box');
+    const emptyMsg = document.getElementById('empty-message');
+    const backToTop = document.getElementById('back-to-top');
 
-    const statRestaurants = document.getElementById('stat-restaurants');
-    const statAvailable   = document.getElementById('stat-available');
-    const statBest        = document.getElementById('stat-best');
+    const searchToggle = document.getElementById('search-toggle');
+    const searchPanel = document.getElementById('search-panel');
+    const searchInput = document.getElementById('search-input');
+    const searchClose = document.getElementById('search-close');
 
-    /* ---------- Estado ---------- */
     let allRestaurants = [];
 
-    /* ---------- Helpers de UI ---------- */
+    /* Links de Google Maps por restaurante */
+    const RESTAURANT_MAPS = {
+        1: 'https://maps.app.goo.gl/TacUNTDpGwxc7tv1A',  // Darcy Resto
+        2: 'https://maps.app.goo.gl/6Ub6po2NoJiCbKkE7',  // Punto y Coma
+        3: 'https://maps.app.goo.gl/JuqYDJV8vww8aGma6',  // Der Fritz
+        6: 'https://maps.app.goo.gl/QCBx3hGM6W1ZZvg96'   // Ándale
+    };
+
+    function mapsLink(r) {
+        if (RESTAURANT_MAPS[r.id] && !RESTAURANT_MAPS[r.id].includes('...')) {
+            return RESTAURANT_MAPS[r.id];
+        }
+        const query = encodeURIComponent((r.address || '') + ', Crespo, Entre Ríos, Argentina');
+        return `https://www.google.com/maps/search/?api=1&query=${query}`;
+    }
+
     function show(el) {
-        [loading, errorBox, emptyBox, grid, toolbar, statsSection]
+        [loading, errorBox, emptyBox, list]
             .forEach(e => e.hidden = true);
         el.hidden = false;
     }
 
-    function badgeFor(r) {
-        if (!r.is_open) return { cls: 'badge-muted',   text: 'Cerrado' };
-
-        const a = r.available_tables;
-        if (a === 0)  return { cls: 'badge-danger',  text: 'Sin disponibilidad' };
-        if (a <= 2)   return { cls: 'badge-warning', text: 'Disp. limitada' };
-        if (a <= 5)   return { cls: 'badge-info',    text: 'Buena disp.' };
-        return          { cls: 'badge-success', text: 'Excelente disp.' };
-    }
-
-    /* ---------- Construcción de tarjeta ---------- */
     function buildCard(r, index) {
         const available = r.available_tables;
-        const total     = r.total_tables;
-        const pct       = total > 0 ? (available / total) * 100 : 0;
-        const badge     = badgeFor(r);
-
-        // Animación escalonada
+        const total = r.total_tables;
+        const pct = total > 0 ? (available / total) * 100 : 0;
         const delay = Math.min(index * 40, 400);
+        const mapsUrl = mapsLink(r);
 
         return `
-            <article class="card restaurant-card" data-id="${r.id}"
+            <article class="restaurant-row" data-id="${r.id}"
                      style="animation-delay: ${delay}ms">
-                <div class="restaurant-card__header">
-                    <h3 class="restaurant-card__name">${UI.escape(r.name)}</h3>
-                    <span class="badge ${badge.cls}">${badge.text}</span>
+                <div class="restaurant-row__head">
+                    <h3 class="restaurant-row__name">${UI.escape(r.name)}</h3>
+                    <div class="restaurant-row__info">
+                        ${r.phone ? `<span class="restaurant-row__phone">📞 ${UI.escape(r.phone)}</span>` : ''}
+                        <span class="restaurant-row__address">${UI.escape(r.address)}</span>
+                    </div>
                 </div>
-
-                <ul class="restaurant-card__meta">
-                    <li>📍 <span>${UI.escape(r.address)}</span></li>
-                    ${r.phone ? `<li>📞 <span>${UI.escape(r.phone)}</span></li>` : ''}
-                </ul>
 
                 ${r.description
-                    ? `<p class="restaurant-card__description">"${UI.escape(r.description)}"</p>`
-                    : ''}
+                ? `<p class="restaurant-row__desc">"${UI.escape(r.description)}"</p>`
+                : ''}
 
-                <div class="restaurant-card__availability">
-                    <div class="availability-number">
-                        <strong>${available}</strong>
-                        <span>de ${total} mesas disponibles</span>
-                    </div>
-                    <div class="availability-bar">
-                        <div class="availability-bar__fill"
-                             style="width: ${pct.toFixed(1)}%"></div>
-                    </div>
+                <p class="restaurant-row__count">
+                    <strong>${available}</strong> de ${total} mesas disponibles
+                </p>
+
+                <div class="availability-bar">
+                    <div class="availability-bar__fill"
+                         style="width: ${pct.toFixed(1)}%"></div>
                 </div>
+
+                <a href="${mapsUrl}" target="_blank" rel="noopener"
+                   class="restaurant-row__maps">
+                    📍 Ver en Google Maps
+                </a>
             </article>
         `;
     }
 
-    /* ---------- Estadísticas ---------- */
-    function renderStats(list) {
-        if (list.length === 0) return;
-
-        const totalAvailable = list.reduce((s, r) => s + r.available_tables, 0);
-        const best = list.reduce(
-            (acc, r) => (r.available_tables > acc.available_tables ? r : acc),
-            list[0]
-        );
-
-        statRestaurants.textContent = list.length;
-        statAvailable.textContent   = totalAvailable;
-        statBest.textContent        = best.available_tables > 0 ? best.name : '—';
-    }
-
-    /* ---------- Filtro + orden ---------- */
     function applyFilters() {
         const query = searchInput.value.trim().toLowerCase();
-        const sort  = sortSelect.value;
 
-        let list = allRestaurants.filter(r => {
+        let filtered = allRestaurants.filter(r => {
             if (!query) return true;
             const haystack = [r.name, r.address, r.description || '']
                 .join(' ').toLowerCase();
             return haystack.includes(query);
         });
 
-        if (sort === 'availability') {
-            list.sort((a, b) => b.available_tables - a.available_tables
-                             || a.name.localeCompare(b.name));
-        } else if (sort === 'name') {
-            list.sort((a, b) => a.name.localeCompare(b.name));
-        } else if (sort === 'total') {
-            list.sort((a, b) => b.total_tables - a.total_tables
-                             || a.name.localeCompare(b.name));
-        }
-
-        if (list.length === 0) {
+        if (filtered.length === 0) {
             emptyMsg.textContent = query
                 ? `No se encontraron resultados para "${query}".`
                 : 'No hay restaurantes registrados todavía.';
-            grid.hidden = true;
+            list.hidden = true;
             emptyBox.hidden = false;
         } else {
-            grid.innerHTML = list.map((r, i) => buildCard(r, i)).join('');
-            grid.hidden = false;
+            list.innerHTML = filtered.map((r, i) => buildCard(r, i)).join('');
+            list.hidden = false;
             emptyBox.hidden = true;
         }
     }
 
-    /* ---------- Carga inicial ---------- */
     async function load() {
         show(loading);
         try {
             const response = await PublicApi.listRestaurants();
-            const list = response.data || [];
-            allRestaurants = list;
+            const restaurants = response.data || [];
+            allRestaurants = restaurants;
 
-            if (list.length === 0) {
+            if (restaurants.length === 0) {
                 emptyMsg.textContent = 'No hay restaurantes registrados todavía.';
                 show(emptyBox);
                 return;
             }
 
-            renderStats(list);
-            statsSection.hidden = false;
-            toolbar.hidden = false;
-            applyFilters();
-            show(grid);
+            list.innerHTML = restaurants.map((r, i) => buildCard(r, i)).join('');
+            show(list);
 
         } catch (err) {
             errorMsg.textContent = err.message || 'Error al cargar los restaurantes.';
@@ -160,12 +123,27 @@
         }
     }
 
-    /* ---------- Listener del buscador y orden ---------- */
-    searchInput.addEventListener('input', applyFilters);
-    sortSelect.addEventListener('change', applyFilters);
+    function openSearch() {
+        searchPanel.hidden = false;
+        setTimeout(() => searchInput.focus(), 100);
+    }
 
-    /* ---------- Botón "volver arriba" ---------- */
-    const SCROLL_THRESHOLD = 400;
+    function closeSearch() {
+        searchPanel.hidden = true;
+        searchInput.value = '';
+        applyFilters();
+    }
+
+    searchToggle.addEventListener('click', () => {
+        if (searchPanel.hidden) openSearch();
+        else closeSearch();
+    });
+
+    searchClose.addEventListener('click', closeSearch);
+    searchInput.addEventListener('input', applyFilters);
+
+    /* Botón "volver arriba" */
+    const SCROLL_THRESHOLD = 200;
 
     function updateBackToTop() {
         if (window.scrollY > SCROLL_THRESHOLD) {
@@ -181,6 +159,5 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    /* ---------- Init ---------- */
     load();
 })();

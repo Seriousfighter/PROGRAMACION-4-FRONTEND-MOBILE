@@ -24,7 +24,7 @@ const UI = {
         setTimeout(() => {
             el.classList.add('toast-hide');
             setTimeout(() => el.remove(), 300);
-        }, 3000);
+        }, 2000);
     },
 
     success(msg) { this.toast(msg, 'success'); },
