@@ -50,7 +50,11 @@
             <article class="restaurant-row" data-id="${r.id}"
                      style="animation-delay: ${delay}ms">
                 <div class="restaurant-row__head">
-                    <h3 class="restaurant-row__name">${UI.escape(r.name)}</h3>
+                    <h3 class="restaurant-row__name">
+                        <span>${UI.escape(r.name)}</span>
+                        <span class="status-dot status-dot--${r.is_open ? 'open' : 'closed'}"
+                              title="${r.is_open ? 'Abierto' : 'Cerrado'}"></span>
+                    </h3>
                     <div class="restaurant-row__info">
                         ${r.phone ? `<span class="restaurant-row__phone">📞 ${UI.escape(r.phone)}</span>` : ''}
                         <span class="restaurant-row__address">${UI.escape(r.address)}</span>

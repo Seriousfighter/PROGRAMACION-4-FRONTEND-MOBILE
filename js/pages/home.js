@@ -26,6 +26,9 @@
     const tablesGrid = $('tables-grid');
     const createBtn = $('create-restaurant-btn');
     const addTablesBtn = $('add-tables-btn');
+        /* Toggle ON/OFF */
+    const openCheckbox = $('open-checkbox');
+    const toggleLabel  = $('toggle-label');
 
     /* Modal editar */
     const editModal = $('edit-modal');
@@ -78,6 +81,35 @@
     navEdit.addEventListener('click', openEditModal);
     navLogout.addEventListener('click', () => AuthApi.logout());
 
+        /* ---------- Toggle: abrir / cerrar restaurante ---------- */
+    openCheckbox.addEventListener('change', async () => {
+        if (!restaurant) return;
+
+        const newState = openCheckbox.checked;
+        openCheckbox.disabled = true;
+
+        try {
+            await RestaurantApi.update(restaurant.id, {
+                name:        restaurant.name,
+                address:     restaurant.address,
+                phone:       restaurant.phone       ?? null,
+                description: restaurant.description ?? null,
+                is_open:     newState
+            });
+
+            restaurant.is_open = newState ? 1 : 0;
+            toggleLabel.textContent = newState ? 'Abierto' : 'Cerrado';
+            UI.success(newState ? 'Restaurante abierto' : 'Restaurante cerrado');
+
+        } catch (err) {
+            // Revertir si falla
+            openCheckbox.checked = !newState;
+            UI.error(err.message || 'No se pudo cambiar el estado');
+        } finally {
+            openCheckbox.disabled = false;
+        }
+    });
+
     /* Vistas */
     function showView(el) {
         [loading, emptyState, noTablesState, tablesContent]
@@ -101,6 +133,9 @@
             restaurant = restaurants[0];
             restaurantInfo.textContent = [restaurant.name, restaurant.address]
                 .filter(Boolean).join(' · ');
+             // Inicializar el toggle
+            openCheckbox.checked = restaurant.is_open === 1 || restaurant.is_open === true;
+            toggleLabel.textContent = openCheckbox.checked ? 'Abierto' : 'Cerrado';
 
             const tablesRes = await RestaurantApi.listTables(restaurant.id);
             tables = tablesRes.data || [];
