@@ -1271,3 +1271,441 @@ body {
         padding-top: 12px;
     }
 }
+
+
+/* =========================================================
+   MESAS MOBILE - TAMAÑO Y CAPACIDAD
+   ========================================================= */
+
+.tables-panel {
+    width: 100%;
+    max-width: 100%;
+    padding: 20px 14px 40px;
+    margin: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.tables-hero {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.tables-hero__head {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+#tables-content {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.tables-grid {
+    width: 100%;
+    max-width: 100%;
+
+    display: grid;
+    grid-template-columns: repeat(4, 68px);
+
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 14px 4px;
+
+    margin: 0 0 28px;
+    padding: 0;
+
+    box-sizing: border-box;
+}
+
+.table-circle {
+    width: 68px;
+    height: 68px;
+    min-width: 68px;
+    min-height: 68px;
+
+    padding: 0;
+    margin: 0;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.table-circle__number {
+    display: block;
+    position: relative;
+    z-index: 1;
+
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.table-circle__chairs {
+    display: block;
+    position: relative;
+    z-index: 1;
+
+    margin-top: 5px;
+
+    font-family: var(--font-sans);
+    font-size: 0.52rem;
+    font-weight: 600;
+    line-height: 1;
+
+    white-space: nowrap;
+}
+
+.legend {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   AJUSTES PARA CELULAR
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    .tables-panel {
+        padding: 20px 12px 36px;
+    }
+
+    .tables-hero__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: nowrap;
+    }
+
+    .tables-hero__title {
+        font-size: 1rem;
+        line-height: 1.2;
+        margin: 0;
+        min-width: 0;
+    }
+
+    .toggle {
+        flex-shrink: 0;
+    }
+
+    .tables-grid {
+        grid-template-columns: repeat(4, 68px);
+        gap: 14px 4px;
+    }
+
+    .legend {
+        padding: 14px 8px;
+        gap: 10px;
+    }
+
+    .legend__item {
+        font-size: 0.68rem;
+        gap: 5px;
+    }
+
+    .legend__dot {
+        width: 10px;
+        height: 10px;
+    }
+}
+
+/* =========================================================
+   RESUMEN DE ESTADOS DE MESAS
+   ========================================================= */
+
+.tables-summary {
+    width: 100%;
+
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+
+    margin: 18px 0 22px;
+}
+
+.tables-summary__item {
+    min-width: 0;
+    padding: 10px 5px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: #fff;
+}
+
+.tables-summary__number {
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.tables-summary__label {
+    margin-top: 5px;
+
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.tables-summary__item--available {
+    border-color: #86d7a2;
+    background: #eefbf2;
+}
+
+.tables-summary__item--available .tables-summary__number {
+    color: #16a34a;
+}
+
+.tables-summary__item--reserved {
+    border-color: #f2d889;
+    background: #fff8df;
+}
+
+.tables-summary__item--reserved .tables-summary__number {
+    color: #d98b00;
+}
+
+.tables-summary__item--occupied {
+    border-color: #efb5b5;
+    background: #fff0f0;
+}
+
+.tables-summary__item--occupied .tables-summary__number {
+    color: #dc2626;
+}
+
+/* =========================================================
+   GESTIÓN DE MESAS - MODAL
+   ========================================================= */
+
+.table-management {
+    width: 100%;
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid #e5e5e5;
+    box-sizing: border-box;
+}
+
+.table-management__title {
+    margin: 0 0 4px;
+    font-family: Inter, sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #171717;
+}
+
+.table-management__hint {
+    margin: 0 0 14px;
+    font-family: Inter, sans-serif;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    color: #777;
+}
+
+
+/* LISTA */
+
+.table-management__list {
+    width: 100%;
+    max-height: 300px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding-right: 2px;
+
+    box-sizing: border-box;
+}
+
+
+/* CADA MESA */
+
+.table-management__row {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+
+    padding: 11px 10px;
+
+    background: #ffffff;
+
+    border: 1px solid #e4e4e4;
+    border-radius: 10px;
+
+    box-sizing: border-box;
+}
+
+
+/* COLOR SEGÚN ESTADO */
+
+.table-management__row--available {
+    border-left: 4px solid #22c55e;
+}
+
+.table-management__row--reserved {
+    border-left: 4px solid #eab308;
+}
+
+.table-management__row--occupied {
+    border-left: 4px solid #ef4444;
+}
+
+
+/* INFORMACIÓN */
+
+.table-management__info {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 4px;
+}
+
+.table-management__info strong {
+    display: block;
+
+    font-family: Inter, sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+
+    color: #171717;
+}
+
+.table-management__info span {
+    display: block;
+
+    font-family: Inter, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+
+    color: #777;
+}
+
+
+/* BOTÓN ELIMINAR */
+
+.table-management__delete {
+    flex-shrink: 0;
+
+    appearance: none;
+
+    padding: 7px 10px;
+
+    border: 1px solid #dc2626;
+    border-radius: 7px;
+
+    background: #ffffff;
+
+    color: #dc2626;
+
+    font-family: Inter, sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.table-management__delete:hover:not(:disabled) {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+.table-management__delete:active:not(:disabled) {
+    transform: scale(0.97);
+}
+
+
+/* NO DISPONIBLE PARA ELIMINAR */
+
+.table-management__delete:disabled {
+    padding: 7px 10px;
+
+    border: 1px solid #d6d6d6;
+    border-radius: 7px;
+
+    background: #f3f3f3;
+
+    color: #a0a0a0;
+
+    font-family: Inter, sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+
+    opacity: 1;
+
+    cursor: not-allowed;
+}
+
+
+/* SIN MESAS */
+
+.table-management__empty {
+    margin: 0;
+
+    padding: 14px;
+
+    text-align: center;
+
+    font-family: Inter, sans-serif;
+    font-size: 0.8rem;
+
+    color: #777;
+}
+
+
+/* =========================================================
+   CELULAR
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    .table-management {
+        margin-top: 20px;
+        padding-top: 16px;
+    }
+
+    .table-management__list {
+        max-height: 290px;
+    }
+
+    .table-management__row {
+        padding: 10px 9px;
+    }
+
+    .table-management__info strong {
+        font-size: 0.84rem;
+    }
+
+    .table-management__info span {
+        font-size: 0.68rem;
+    }
+
+    .table-management__delete,
+    .table-management__delete:disabled {
+        padding: 7px 9px;
+        font-size: 0.67rem;
+    }
+}
