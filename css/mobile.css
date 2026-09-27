@@ -11,10 +11,10 @@
    Variables
    --------------------------------------------------------- */
 :root {
-    --safe-top:    env(safe-area-inset-top, 0px);
-    --safe-right:  env(safe-area-inset-right, 0px);
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
     --safe-bottom: env(safe-area-inset-bottom, 0px);
-    --safe-left:   env(safe-area-inset-left, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
 }
 
 /* ---------------------------------------------------------
@@ -90,8 +90,15 @@ body {
 }
 
 @keyframes slideDown {
-    from { opacity: 0; transform: translateY(-8px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .search-panel__inner {
@@ -397,12 +404,15 @@ body {
 }
 
 @keyframes pulse-gold {
-    0%, 100% {
+
+    0%,
+    100% {
         box-shadow:
             0 8px 20px rgba(139, 30, 63, 0.40),
             0 2px 6px rgba(0, 0, 0, 0.15),
             0 0 0 4px rgba(201, 169, 97, 0.15);
     }
+
     50% {
         box-shadow:
             0 8px 20px rgba(139, 30, 63, 0.40),
@@ -419,6 +429,7 @@ body {
     padding: 18px 16px;
     font-size: 0.78rem;
 }
+
 /* =========================================================
    Toasts en mobile (abajo de la pantalla)
    ========================================================= */
@@ -440,8 +451,15 @@ body {
 }
 
 @keyframes toastInUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .toast-hide {
@@ -449,6 +467,7 @@ body {
     transform: translateY(20px) !important;
     transition: opacity 0.3s, transform 0.3s;
 }
+
 /* =========================================================
    PANEL DE MESAS (mobile)
    ========================================================= */
@@ -566,6 +585,7 @@ body {
     margin-bottom: 32px;
     padding: 8px 0;
 }
+
 /* ---------- Círculos 3D ---------- */
 .table-circle {
     aspect-ratio: 1;
@@ -664,9 +684,17 @@ body {
 }
 
 @keyframes flash {
-    0%   { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.8); }
-    50%  { box-shadow: 0 0 0 12px rgba(255, 255, 255, 0); }
-    100% { box-shadow: none; }
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.8);
+    }
+
+    50% {
+        box-shadow: 0 0 0 12px rgba(255, 255, 255, 0);
+    }
+
+    100% {
+        box-shadow: none;
+    }
 }
 
 /* Leyenda */
@@ -700,9 +728,17 @@ body {
     display: inline-block;
 }
 
-.legend__dot--available { background: #16a34a; }
-.legend__dot--occupied  { background: #dc2626; }
-.legend__dot--reserved  { background: #f59e0b; }
+.legend__dot--available {
+    background: #16a34a;
+}
+
+.legend__dot--occupied {
+    background: #dc2626;
+}
+
+.legend__dot--reserved {
+    background: #f59e0b;
+}
 
 /* ---------- Modal editar (mobile) ---------- */
 .modal--large {
@@ -730,6 +766,7 @@ body {
     padding: 6px 10px;
     border-radius: 4px;
 }
+
 .modal__close:active {
     background: var(--cream);
 }
@@ -763,8 +800,13 @@ body {
     font-weight: 600;
 }
 
-.tab-panel { display: none; }
-.tab-panel.is-active { display: block; }
+.tab-panel {
+    display: none;
+}
+
+.tab-panel.is-active {
+    display: block;
+}
 
 /* ---------- Numberbox ---------- */
 .numberbox {
@@ -795,7 +837,10 @@ body {
     font-family: inherit;
     padding: 0;
 }
-.numberbox__btn:active { background: var(--wine-light); }
+
+.numberbox__btn:active {
+    background: var(--wine-light);
+}
 
 .numberbox__input {
     flex: 1;
@@ -931,15 +976,15 @@ body {
     transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.toggle input:checked + .toggle__track {
+.toggle input:checked+.toggle__track {
     background: #16a34a;
 }
 
-.toggle input:checked + .toggle__track .toggle__thumb {
+.toggle input:checked+.toggle__track .toggle__thumb {
     transform: translateX(20px);
 }
 
-.toggle input:focus-visible + .toggle__track {
+.toggle input:focus-visible+.toggle__track {
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1), 0 0 0 4px rgba(139, 30, 63, 0.15);
 }
 
@@ -953,11 +998,11 @@ body {
     min-width: 60px;
 }
 
-.toggle input:checked ~ .toggle__label {
+.toggle input:checked~.toggle__label {
     color: #16a34a;
 }
 
-.toggle input:disabled + .toggle__track {
+.toggle input:disabled+.toggle__track {
     opacity: 0.5;
     cursor: wait;
 }
@@ -987,14 +1032,242 @@ body {
 }
 
 @keyframes statusPulse {
-    0%, 100% {
+
+    0%,
+    100% {
         box-shadow:
             0 0 0 2px rgba(255, 255, 255, 0.9),
             0 0 0 0 rgba(22, 163, 74, 0.5);
     }
+
     50% {
         box-shadow:
             0 0 0 2px rgba(255, 255, 255, 0.9),
             0 0 0 6px rgba(22, 163, 74, 0);
+    }
+}
+
+/* =========================================================
+   NUEVAS CARDS - VISTA PÚBLICA MOBILE
+   ========================================================= */
+
+.restaurant-card {
+    width: 100%;
+    padding: 18px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.35s ease-out both;
+}
+
+/* Colores según disponibilidad */
+
+.restaurant-card--available {
+    background: #eefbf2;
+    border-color: #b9e7c5;
+}
+
+.restaurant-card--low {
+    background: #fff8df;
+    border-color: #f2d889;
+}
+
+.restaurant-card--full {
+    background: #fff0f0;
+    border-color: #efb5b5;
+}
+
+.restaurant-card--closed {
+    background: #f1f1f1;
+    border-color: #d2d2d2;
+    opacity: 0.85;
+}
+
+
+/* Nombre */
+
+.restaurant-card__name {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--ink);
+}
+
+
+/* Dirección y teléfono */
+
+.restaurant-card__details {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.restaurant-card__address,
+.restaurant-card__phone {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    color: var(--ink-soft);
+}
+
+
+/* Descripción */
+
+.restaurant-card__description {
+    margin: 2px 0;
+    font-size: 0.88rem;
+    line-height: 1.4;
+    font-style: italic;
+    color: var(--muted);
+}
+
+
+/* Estado de disponibilidad */
+
+.restaurant-card__status {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 4px;
+    font-size: 1rem;
+    color: var(--ink);
+}
+
+.restaurant-card__status strong {
+    font-weight: 700;
+}
+
+
+/* Punto de color */
+
+.restaurant-card__dot {
+    width: 12px;
+    height: 12px;
+    min-width: 12px;
+    border-radius: 50%;
+}
+
+.restaurant-card__dot--available {
+    background: #16a34a;
+}
+
+.restaurant-card__dot--low {
+    background: #f59e0b;
+}
+
+.restaurant-card__dot--full {
+    background: #dc2626;
+}
+
+.restaurant-card__dot--closed {
+    background: #777;
+}
+
+
+/* Botón Cómo llegar */
+
+.restaurant-card__maps {
+    width: 100%;
+    min-height: 46px;
+    margin-top: 5px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+    background: var(--wine);
+    color: #fff;
+
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: none;
+
+    transition:
+        transform 0.15s ease,
+        opacity 0.15s ease;
+}
+
+.restaurant-card__maps:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+}
+
+
+/* Separación entre restaurantes */
+
+.restaurants-list {
+    gap: 14px;
+}
+
+
+/* Celulares chicos */
+
+@media (max-width: 480px) {
+
+    .public-main {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .restaurant-card {
+        padding: 16px;
+        border-radius: 12px;
+    }
+
+    .restaurant-card__name {
+        font-size: 1.25rem;
+    }
+
+    .restaurant-card__address,
+    .restaurant-card__phone {
+        font-size: 0.92rem;
+    }
+
+    .restaurant-card__status {
+        font-size: 0.95rem;
+    }
+
+    .restaurant-card__maps {
+        min-height: 48px;
+        font-size: 1rem;
+    }
+}
+
+/* =========================================================
+   Ajuste final del encabezado público en celular
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    .hero {
+        padding: 14px 16px;
+    }
+
+    .hero__eyebrow {
+        display: none;
+    }
+
+    .hero__title {
+        font-size: 1.35rem;
+        line-height: 1.2;
+        margin-bottom: 5px;
+    }
+
+    .hero__subtitle {
+        font-size: 0.82rem;
+        line-height: 1.3;
+        margin: 0;
+    }
+
+    .public-main {
+        padding-top: 12px;
     }
 }
