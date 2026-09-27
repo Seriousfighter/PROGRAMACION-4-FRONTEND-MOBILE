@@ -11,7 +11,7 @@ const CONFIG = {
 
         // Si estamos en localhost o 127.0.0.1 → usar localhost
         if (host === 'localhost' || host === '127.0.0.1') {
-            return 'http://localhost/messapi/api';
+            return 'http://localhost/PROGRAMACION-4-BACKEND/messapi/api';
         }
 
         // Si estamos en otra IP (ej: 192.168.100.13) → usar esa misma IP
@@ -23,5 +23,5 @@ const CONFIG = {
 
     // Claves del localStorage
     TOKEN_KEY: 'mesas_token',
-    USER_KEY:  'mesas_user'
+    USER_KEY: 'mesas_user'
 };
