@@ -158,13 +158,15 @@
     function renderTables() {
         tablesGrid.innerHTML = tables.map(t => {
             const status = STATUS[t.status_id] || STATUS[1];
+            const chairs = t.chairs || 4;
             return `
                 <button type="button"
                         class="table-circle table-circle--${status.key}"
                         data-id="${t.id}"
                         data-status="${t.status_id}"
-                        title="${status.label}">
+                        title="${status.label} · ${chairs} sillas">
                     <span class="table-circle__number">${t.table_number}</span>
+                    <span class="table-circle__chairs">${chairs} sillas</span>
                 </button>
             `;
         }).join('');

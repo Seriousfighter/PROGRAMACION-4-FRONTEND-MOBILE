@@ -1,10 +1,5 @@
 /* =========================================================
    MOBILE — Estilos para dispositivos móviles
-   - Safe areas (iPhone notch)
-   - Header compacto
-   - Buscador desplegable
-   - Cards de restaurantes compactas
-   - Botón flotante "volver arriba"
    ========================================================= */
 
 /* ---------------------------------------------------------
@@ -28,9 +23,9 @@ body {
     overscroll-behavior-y: contain;
 }
 
-/* ---------------------------------------------------------
-   Header compacto
-   --------------------------------------------------------- */
+/* =========================================================
+   HEADER (vista pública)
+   ========================================================= */
 .app-header__inner {
     height: 56px;
     padding: 0 16px;
@@ -79,9 +74,9 @@ body {
     display: block;
 }
 
-/* ---------------------------------------------------------
-   Buscador desplegable
-   --------------------------------------------------------- */
+/* =========================================================
+   BUSCADOR DESPLEGABLE
+   ========================================================= */
 .search-panel {
     background: var(--surface);
     border-top: 1px solid var(--border);
@@ -142,9 +137,9 @@ body {
     background: var(--border);
 }
 
-/* ---------------------------------------------------------
-   Hero compacto
-   --------------------------------------------------------- */
+/* =========================================================
+   HERO (vista pública)
+   ========================================================= */
 .hero {
     padding: 20px 16px 16px;
     text-align: center;
@@ -172,9 +167,9 @@ body {
     font-size: 0.82rem;
 }
 
-/* ---------------------------------------------------------
-   Lista de restaurantes
-   --------------------------------------------------------- */
+/* =========================================================
+   LISTA DE RESTAURANTES
+   ========================================================= */
 .public-main {
     padding: 0 14px 32px;
 }
@@ -185,9 +180,9 @@ body {
     gap: 10px;
 }
 
-/* ---------------------------------------------------------
-   Card de restaurante (compacta, rectangular)
-   --------------------------------------------------------- */
+/* =========================================================
+   CARD DE RESTAURANTE (compacta)
+   ========================================================= */
 .restaurant-row {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -202,7 +197,6 @@ body {
     gap: 4px;
 }
 
-/* Detalle dorado a la izquierda */
 .restaurant-row::before {
     content: '';
     position: absolute;
@@ -270,8 +264,9 @@ body {
 .restaurant-row__count {
     color: var(--muted);
     font-size: 0.78rem;
-    margin-top: 2px;
-    margin-bottom: 2px;
+    margin: 0;
+    flex-shrink: 1;
+    min-width: 0;
 }
 
 .restaurant-row__count strong {
@@ -297,29 +292,13 @@ body {
     border-radius: var(--radius-full);
 }
 
-/* ---------- Footer de la card: contador + link Maps ---------- */
+/* Fila 5: footer (contador + link Maps) */
 .restaurant-row__footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 8px;
     margin-top: 2px;
-}
-
-.restaurant-row__count {
-    color: var(--muted);
-    font-size: 0.78rem;
-    margin: 0;
-    flex-shrink: 1;
-    min-width: 0;
-}
-
-.restaurant-row__count strong {
-    color: var(--wine);
-    font-family: var(--font-display);
-    font-size: 1rem;
-    font-weight: 700;
-    margin-right: 2px;
 }
 
 .restaurant-row__maps {
@@ -344,9 +323,9 @@ body {
     color: #fff;
 }
 
-/* ---------------------------------------------------------
-   Botón flotante "volver arriba"
-   --------------------------------------------------------- */
+/* =========================================================
+   BOTÓN FLOTANTE "VOLVER ARRIBA"
+   ========================================================= */
 .back-to-top {
     position: fixed;
     bottom: calc(20px + var(--safe-bottom));
@@ -411,16 +390,17 @@ body {
     }
 }
 
-/* ---------------------------------------------------------
-   Footer
-   --------------------------------------------------------- */
+/* =========================================================
+   FOOTER
+   ========================================================= */
 .app-footer {
     margin-top: 24px;
     padding: 18px 16px;
     font-size: 0.78rem;
 }
+
 /* =========================================================
-   Toasts en mobile (abajo de la pantalla)
+   TOASTS (mobile — abajo de la pantalla)
    ========================================================= */
 .toast {
     top: auto !important;
@@ -449,11 +429,12 @@ body {
     transform: translateY(20px) !important;
     transition: opacity 0.3s, transform 0.3s;
 }
+
 /* =========================================================
-   PANEL DE MESAS (mobile)
+   PANEL DE MESAS (navbar + hero + grid + circulos)
    ========================================================= */
 
-/* ---------- Navbar ---------- */
+/* ---------- Navbar del panel ---------- */
 .app-navbar {
     background: var(--surface);
     border-bottom: 1px solid var(--border);
@@ -534,7 +515,7 @@ body {
     color: var(--danger);
 }
 
-/* ---------- Panel de mesas ---------- */
+/* ---------- Panel ---------- */
 .tables-panel {
     padding: 24px 16px 48px;
 }
@@ -558,28 +539,45 @@ body {
     font-size: 0.88rem;
 }
 
-/* Grid fijo de 4 columnas en mobile */
+/* ---------- Hero con toggle ---------- */
+.tables-hero__head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.tables-hero__head .tables-hero__title {
+    margin-bottom: 0;
+    flex: 1;
+    min-width: 0;
+}
+
+/* ---------- Grid de 3 columnas ---------- */
 .tables-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
     margin-bottom: 32px;
     padding: 8px 0;
 }
-/* ---------- Círculos 3D ---------- */
+
+/* ---------- Círculos 3D (con sillas) ---------- */
 .table-circle {
     aspect-ratio: 1;
     border-radius: 50%;
     border: none;
     cursor: pointer;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 2px;
     padding: 0;
     position: relative;
     font-family: var(--font-display);
     font-weight: 700;
-    font-size: 1.3rem;
     color: #fff;
     text-shadow: 0 2px 3px rgba(0, 0, 0, 0.35);
     transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
@@ -616,10 +614,25 @@ body {
     line-height: 1;
     position: relative;
     z-index: 1;
+    font-size: 1.6rem;
     font-feature-settings: "tnum";
     letter-spacing: -0.02em;
 }
 
+.table-circle__chairs {
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+    font-family: var(--font-sans);
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    opacity: 0.95;
+    text-transform: lowercase;
+    white-space: nowrap;
+}
+
+/* Estados */
 .table-circle--available {
     background: radial-gradient(circle at 30% 25%, #4ade80 0%, #16a34a 55%, #15803d 100%);
     box-shadow:
@@ -669,7 +682,7 @@ body {
     100% { box-shadow: none; }
 }
 
-/* Leyenda */
+/* ---------- Leyenda ---------- */
 .legend {
     display: flex;
     justify-content: center;
@@ -704,7 +717,9 @@ body {
 .legend__dot--occupied  { background: #dc2626; }
 .legend__dot--reserved  { background: #f59e0b; }
 
-/* ---------- Modal editar (mobile) ---------- */
+/* =========================================================
+   MODALES (editar, crear, confirmar, bloqueado)
+   ========================================================= */
 .modal--large {
     max-width: 100%;
     max-height: 90vh;
@@ -730,11 +745,12 @@ body {
     padding: 6px 10px;
     border-radius: 4px;
 }
+
 .modal__close:active {
     background: var(--cream);
 }
 
-/* ---------- Tabs ---------- */
+/* Tabs */
 .tabs {
     display: flex;
     gap: 4px;
@@ -766,7 +782,7 @@ body {
 .tab-panel { display: none; }
 .tab-panel.is-active { display: block; }
 
-/* ---------- Numberbox ---------- */
+/* Numberbox */
 .numberbox {
     display: flex;
     align-items: center;
@@ -795,7 +811,10 @@ body {
     font-family: inherit;
     padding: 0;
 }
-.numberbox__btn:active { background: var(--wine-light); }
+
+.numberbox__btn:active {
+    background: var(--wine-light);
+}
 
 .numberbox__input {
     flex: 1;
@@ -863,7 +882,6 @@ body {
     margin-bottom: 22px;
 }
 
-/* Form section hint */
 .form-section__hint {
     color: var(--muted);
     font-size: 0.88rem;
@@ -873,22 +891,8 @@ body {
 }
 
 /* =========================================================
-   Toggle ON/OFF (mobile)
+   TOGGLE ON/OFF
    ========================================================= */
-.tables-hero__head {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    flex-wrap: wrap;
-    margin-bottom: 8px;
-}
-
-.tables-hero__head .tables-hero__title {
-    margin-bottom: 0;
-    flex: 1;
-    min-width: 0;
-}
-
 .toggle {
     display: inline-flex;
     align-items: center;
@@ -963,7 +967,7 @@ body {
 }
 
 /* =========================================================
-   Puntito de estado (mobile)
+   PUNTITO DE ESTADO (abierto / cerrado)
    ========================================================= */
 .status-dot {
     display: inline-block;
