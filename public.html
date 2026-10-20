@@ -52,7 +52,7 @@
             <div class="search-panel__inner">
                 <span class="search-panel__icon">🔍</span>
                 <input type="text" id="search-input"
-                       placeholder="Buscar restaurante..."
+                       placeholder="Buscar restaurante (ej: calle, nombre, descripción)..."
                        autocomplete="off"
                        inputmode="search">
                 <button type="button" class="search-panel__close" id="search-close" aria-label="Cerrar">✕</button>
@@ -60,13 +60,20 @@
         </div>
     </header>
 
-    <section class="hero">
+       <section class="hero">
         <div class="hero__inner">
             <p class="hero__eyebrow">Crespo, E.R</p>
             <h1 class="hero__title">Encontrá tu mesa perfecta</h1>
             <p class="hero__subtitle">
                 Consultá en tiempo real la disponibilidad de mesas.
             </p>
+
+            <!-- Botón "Solo libres" -->
+            <div class="mobile-filters" id="mobile-filters" style="justify-content: center;">
+                <button type="button" class="m-pill m-pill--only-open" id="only-open-btn">
+                    <span class="dot-pulse dot-pulse--green"></span> Solo mesas libres
+                </button>
+            </div>
         </div>
     </section>
 
