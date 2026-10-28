@@ -2,14 +2,18 @@
    Spinner (usado en estados de carga)
    ========================================================= */
 .spinner {
-    width: 42px;
-    height: 42px;
-    border: 3px solid var(--border);
-    border-top-color: var(--wine);
+    width: 20px; /* Tamaño ideal para que entre en un botón */
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.4); /* Borde blanco semi-transparente */
+    border-top-color: #fff; /* La parte que gira es blanca sólida */
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
-    margin: 0 auto 16px;
+    margin: 0; /* IMPORTANTE: Quitamos el margen que lo descolocaba */
+    display: inline-block;
+    vertical-align: middle;
 }
+
+@keyframes spin { to { transform: rotate(360deg); } }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -39,7 +43,7 @@
     to   { opacity: 1; transform: translateY(0);    }
 }
 
-/* Borde superior decorativo (vino → dorado) */
+/* Borde superior decorativo (Rojo → Negro) */
 .card::before {
     content: '';
     display: block;
@@ -57,12 +61,7 @@
     gap: 14px;
 }
 
-.restaurant-card__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 12px;
-}
+.restaurant-card__header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 
 .restaurant-card__name {
     font-family: var(--font-display);
@@ -73,12 +72,7 @@
     letter-spacing: -0.01em;
 }
 
-.restaurant-card__meta {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
+.restaurant-card__meta { list-style: none; display: flex; flex-direction: column; gap: 6px; }
 
 .restaurant-card__meta li {
     color: var(--muted);
@@ -116,7 +110,7 @@
 
 .restaurant-card__map:hover {
     border-color: var(--wine);
-    box-shadow: 0 4px 12px rgba(139, 30, 63, 0.15);
+    box-shadow: 0 4px 12px rgba(227, 27, 35, 0.15);
     text-decoration: none;
 }
 
@@ -130,9 +124,7 @@
     transition: filter 0.15s;
 }
 
-.restaurant-card__map:hover iframe {
-    filter: saturate(1.05);
-}
+.restaurant-card__map:hover iframe { filter: saturate(1.05); }
 
 .restaurant-card__availability {
     margin-top: auto;
@@ -156,11 +148,7 @@
     letter-spacing: -0.02em;
 }
 
-.availability-number span {
-    color: var(--muted);
-    font-size: 0.88rem;
-    font-weight: 500;
-}
+.availability-number span { color: var(--muted); font-size: 0.88rem; font-weight: 500; }
 
 .availability-bar {
     height: 6px;

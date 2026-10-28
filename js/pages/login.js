@@ -33,17 +33,23 @@
             return showError('El formato del email no es válido.');
         }
 
+        // 1. Bloqueamos el botón y mostramos la ruedita centrada
         btn.disabled = true;
-        btn.textContent = 'Ingresando...';
-        UI.showLoader();
+        btn.innerHTML = '<span class="spinner" style="width: 18px; height: 18px; border-width: 2px; margin: 0; border-top-color: #fff; border-color: rgba(255,255,255,0.3);"></span> <span>Ingresando...</span>';
 
         try {
             const data = await AuthApi.login(email, password);
             Session.save(data.token, data.user);
+            
+            // Mostramos el éxito brevemente antes de redirigir
             UI.success('¡Bienvenido!');
-            UI.redirect('home.html');
+            
+            setTimeout(() => {
+                UI.redirect('home.html');
+            }, 500); // Medio segundo de delay para que se lea el mensaje de éxito
 
         } catch (err) {
+            // Si hay error, mostramos el mensaje
             if (err.errors) {
                 const first = Object.values(err.errors)[0];
                 showError(first || err.message);
@@ -54,10 +60,10 @@
             } else {
                 showError(err.message || 'Error al iniciar sesión.');
             }
-        } finally {
+            
+            // 2. Restauramos el botón si hubo un error
             btn.disabled = false;
-            btn.textContent = 'Iniciar sesión';
-            UI.hideLoader();
+            btn.innerHTML = 'Iniciar sesión';
         }
     });
 })();
