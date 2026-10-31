@@ -105,9 +105,9 @@
     /* =========================================================
        NAVBAR Y TOGGLE
        ========================================================= */
-    navHome.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-    navEdit.addEventListener('click', openEditModal);
-    navLogout.addEventListener('click', () => AuthApi.logout());
+    if (navHome) navHome.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    if (navEdit) navEdit.addEventListener('click', openEditModal);
+    if (navLogout) navLogout.addEventListener('click', () => AuthApi.logout());
 
     openCheckbox.addEventListener('change', async () => {
         if (!restaurant) return;
@@ -120,7 +120,18 @@
             });
             restaurant.is_open = newState ? 1 : 0;
             toggleLabel.textContent = newState ? 'Abierto' : 'Cerrado';
-            UI.success(newState ? 'Restaurante abierto' : 'Restaurante cerrado');
+
+            // SI SE CIERRA: Liberamos todas las mesas
+            if (newState === false) {
+                const mesasAOcupar = tables.filter(t => t.status_id !== 1);
+                if (mesasAOcupar.length > 0) {
+                    await Promise.all(mesasAOcupar.map(t => forceAvailable(t.id)));
+                }
+            }
+
+            UI.success(newState ? 'Restaurante abierto' : 'Restaurante cerrado y mesas liberadas');
+            await load();
+
         } catch (err) {
             openCheckbox.checked = !newState;
             UI.error(err.message || 'No se pudo cambiar el estado');
@@ -160,13 +171,9 @@
             if (statusId === 2) statusKey = 'occupied';
             else if (statusId === 3) statusKey = 'reserved';
 
-            // 1. Validar si cumple el filtro de estado
             const matchesStatus = (activeFilter === 'all' || statusKey === activeFilter);
-
-            // 2. Validar si cumple la búsqueda EXACTA
             const matchesSearch = searchTerm === '' || tableNumber === searchTerm;
 
-            // Mostrar solo si cumple ambas
             if (matchesStatus && matchesSearch) {
                 circle.hidden = false;
             } else {
@@ -270,6 +277,20 @@
         }
     }
 
+    async function forceAvailable(tableId) {
+        const table = tables.find(t => t.id === tableId);
+        if (!table || table.status_id === 1) return; 
+
+        let rotationsNeeded = 0;
+        if (table.status_id === 2) rotationsNeeded = 2;
+        if (table.status_id === 3) rotationsNeeded = 1;
+
+        for (let i = 0; i < rotationsNeeded; i++) {
+            const res = await TableApi.rotateStatus(tableId);
+            table.status_id = res.data.status_id; 
+        }
+    }
+
     /* =========================================================
        MODAL EDITAR
        ========================================================= */
@@ -281,16 +302,22 @@
         phoneIn.value = restaurant.phone || '';
         descIn.value = restaurant.description || '';
 
+        const remaining = MAX_TABLES - tables.length;
         addChairsCount.value = tables[0]?.chairs || 4;
-        addTablesCount.value = 5;
+        addTablesCount.value = remaining > 0 ? 1 : 0;
         updateAddHint();
 
-        removeTablesCount.value = 0;
+        removeTablesCount.value = 1;
         updateRemoveInfo();
         updateRemoveHint();
 
         activateTab('info');
         formError.hidden = true;
+
+        const isFull = remaining <= 0;
+        addTablesMinus.disabled = isFull;
+        addTablesPlus.disabled = isFull;
+        addTablesCount.disabled = isFull;
 
         editModal.hidden = false;
         document.body.style.overflow = 'hidden';
@@ -318,39 +345,65 @@
     tabs.forEach(t => { t.addEventListener('click', () => activateTab(t.dataset.tab)); });
 
     /* =========================================================
-       NUMBERBOXES
+       NUMBERBOXES (AGREGAR)
        ========================================================= */
     function clampChairs(n) { n = parseInt(n, 10); if (isNaN(n)) n = 4; return Math.min(MAX_CHAIRS, Math.max(MIN_CHAIRS, n)); }
-    function clampAddTables(n) { n = parseInt(n, 10); if (isNaN(n)) n = 1; return Math.min(MAX_TABLES, Math.max(1, n)); }
+    
+    function clampAddTables(n) {
+        n = parseInt(n, 10);
+        if (isNaN(n)) n = 1;
+        const remaining = MAX_TABLES - tables.length;
+        if (remaining <= 0) return 0;
+        return Math.min(remaining, Math.max(1, n));
+    }
 
     function updateAddHint() {
+        const remaining = MAX_TABLES - tables.length;
         const chairs = clampChairs(addChairsCount.value);
         const count  = clampAddTables(addTablesCount.value);
-        addHint.innerHTML = `Se agregarán <strong>${count}</strong> mesas con <strong>${chairs}</strong> sillas cada una.`;
+
+        if (remaining <= 0) {
+            addHint.innerHTML = `<span style="color: #dc2626; font-weight: 600;">Límite alcanzado: ya tenés ${MAX_TABLES} mesas.</span>`;
+            return;
+        }
+
+        if (parseInt(addTablesCount.value, 10) > remaining) {
+            addHint.innerHTML = `Solo podés agregar <strong>${remaining}</strong> ${remaining === 1 ? 'mesa' : 'mesas'} más para llegar al límite de ${MAX_TABLES}.`;
+        } else {
+            addHint.innerHTML = `Se agregará${count > 1 ? 'n' : ''} <strong>${count}</strong> ${count === 1 ? 'mesa' : 'mesas'} con <strong>${chairs}</strong> ${chairs === 1 ? 'silla' : 'sillas'} cada una.`;
+        }
     }
 
     addChairsMinus.addEventListener('click', () => { addChairsCount.value = clampChairs(addChairsCount.value) - 1; updateAddHint(); });
     addChairsPlus.addEventListener('click', () => { addChairsCount.value = clampChairs(addChairsCount.value) + 1; updateAddHint(); });
-    addChairsCount.addEventListener('blur', () => { addChairsCount.value = clampChairs(addChairsCount.value); updateAddHint(); });
+    addChairsCount.addEventListener('input', () => { addChairsCount.value = clampChairs(addChairsCount.value); updateAddHint(); });
 
     addTablesMinus.addEventListener('click', () => { addTablesCount.value = clampAddTables(addTablesCount.value) - 1; updateAddHint(); });
     addTablesPlus.addEventListener('click', () => { addTablesCount.value = clampAddTables(addTablesCount.value) + 1; updateAddHint(); });
-    addTablesCount.addEventListener('blur', () => { addTablesCount.value = clampAddTables(addTablesCount.value); updateAddHint(); });
+    addTablesCount.addEventListener('input', () => { addTablesCount.value = clampAddTables(addTablesCount.value); updateAddHint(); });
 
-    function clampRemoveTables(n) { n = parseInt(n, 10); if (isNaN(n)) n = 0; return Math.min(tables.length, Math.max(0, n)); }
+    /* =========================================================
+       NUMBERBOXES (ELIMINAR)
+       ========================================================= */
+    function clampRemoveTables(n) {
+        n = parseInt(n, 10);
+        if (isNaN(n)) n = 1;
+        return Math.min(tables.length, Math.max(1, n)); 
+    }
 
     function updateRemoveInfo() {
-        removeInfo.innerHTML = `Actualmente tenés <strong>${tables.length}</strong> mesas.`;
+        const total = tables.length;
+        removeInfo.innerHTML = `Actualmente tenés <strong>${total}</strong> ${total === 1 ? 'mesa' : 'mesas'}.`;
     }
 
     function updateRemoveHint() {
         const n = clampRemoveTables(removeTablesCount.value);
-        removeHint.innerHTML = n === 0 ? `Se eliminarán <strong>0</strong> mesas.` : `Se eliminarán las últimas <strong>${n}</strong> mesas.`;
+        removeHint.innerHTML = `Se eliminará${n > 1 ? 'n' : ''} <strong>${n}</strong> ${n === 1 ? 'mesa' : 'mesas'}.`;
     }
 
     removeTablesMinus.addEventListener('click', () => { removeTablesCount.value = clampRemoveTables(removeTablesCount.value) - 1; updateRemoveHint(); });
     removeTablesPlus.addEventListener('click', () => { removeTablesCount.value = clampRemoveTables(removeTablesCount.value) + 1; updateRemoveHint(); });
-    removeTablesCount.addEventListener('blur', () => { removeTablesCount.value = clampRemoveTables(removeTablesCount.value); updateRemoveHint(); });
+    removeTablesCount.addEventListener('input', () => { removeTablesCount.value = clampRemoveTables(removeTablesCount.value); updateRemoveHint(); });
 
     /* =========================================================
        GUARDAR
@@ -390,6 +443,9 @@
     }
 
     async function addTables() {
+        const remaining = MAX_TABLES - tables.length;
+        if (remaining <= 0) { formError.textContent = `No podés agregar más mesas. Ya alcanzaste el límite de ${MAX_TABLES}.`; formError.hidden = false; return; }
+
         const count  = clampAddTables(addTablesCount.value);
         const chairs = clampChairs(addChairsCount.value);
 
@@ -404,7 +460,7 @@
                 const nextNumber = startNumber + i + 1;
                 await RestaurantApi.createTable(restaurant.id, { table_number: nextNumber, details: `Mesa ${nextNumber}`, chairs: chairs, status_id: 1 });
             }
-            UI.success(`Se agregaron ${count} mesas.`);
+            UI.success(`Se agregaron ${count} ${count === 1 ? 'mesa' : 'mesas'}.`);
             closeEditModal();
             await load();
         } catch (err) {
@@ -429,7 +485,7 @@
             return;
         }
 
-        const ok = await askConfirm('Confirmar eliminación', `Vas a eliminar ${count} mesas (las de mayor número). ¿Confirmar?`);
+        const ok = await askConfirm('Confirmar eliminación', `Vas a eliminar ${count} ${count === 1 ? 'mesa' : 'mesas'} (las de mayor número). ¿Confirmar?`);
         if (!ok) return;
 
         editSave.disabled = true;
@@ -437,7 +493,7 @@
 
         try {
             for (const t of toDelete) { await TableApi.delete(t.id); }
-            UI.success(`Se eliminaron ${count} mesas.`);
+            UI.success(`Se eliminaron ${count} ${count === 1 ? 'mesa' : 'mesas'}.`);
             closeEditModal();
             await load();
         } catch (err) {
@@ -480,6 +536,10 @@
             UI.success('¡Restaurante creado!');
             closeCreateModal();
             await load();
+
+            if (tables.length === 0) {
+                setTimeout(() => { openEditModal(); activateTab('add'); }, 400);
+            }
         } catch (err) {
             modalError.textContent = err.message || 'Error al crear.';
             modalError.hidden = false;
@@ -517,7 +577,7 @@
         blockedOk.addEventListener('click', () => { blockedModal.hidden = true; }, { once: true });
     }
 
-        if (searchTableInput) {
+    if (searchTableInput) {
         searchTableInput.addEventListener('input', applyFilter);
     }
     load();
