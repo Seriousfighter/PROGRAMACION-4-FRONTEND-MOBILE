@@ -75,7 +75,7 @@ a:hover { color: var(--wine-dark); text-decoration: none; }
 }
 
 /* =========================================================
-   Header público
+   Header público  (Vista Pública)
    ========================================================= */
 .app-header {
     background: rgba(255, 255, 255, 0.95);

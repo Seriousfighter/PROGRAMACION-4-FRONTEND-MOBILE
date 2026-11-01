@@ -1,16 +1,22 @@
 /* =========================================================
-   Servicio público
-   Endpoints que NO requieren autenticación.
+   Servicio público (API)
+   - Agrupa las peticiones que NO requieren estar logueado.
+   - Se usa para la vista pública donde cualquiera puede ver los restaurantes.
    ========================================================= */
 const PublicApi = {
-    /* Lista de restaurantes ordenados por cantidad de mesas disponibles
-       GET /api/public/restaurants  →  { data: [...] } */
+    
+    /**
+     * Trae la lista de todos los restaurantes.
+     * El "false" indica que NO mande el token de sesión.
+     */
     listRestaurants() {
         return ApiClient.get('/public/restaurants', false);
     },
 
-    /* Detalle de un restaurante
-       GET /api/public/restaurants/{id}  →  { data: {...} } */
+    /**
+     * Trae los datos de un restaurante específico usando su ID.
+     * El "false" indica que NO mande el token de sesión.
+     */
     getRestaurant(id) {
         return ApiClient.get(`/public/restaurants/${id}`, false);
     }

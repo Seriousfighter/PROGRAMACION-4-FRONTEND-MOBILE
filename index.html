@@ -7,10 +7,12 @@
     <meta name="theme-color" content="#E31B23">
     <title>Iniciar sesión — Messapi</title>
 
+     <!-- Fuentes de Google (Playfair para títulos, Inter para textos) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+     <!-- Hojas de estilo -->
     <link rel="stylesheet" href="css/global.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/mobile.css">
@@ -20,18 +22,20 @@
     <main class="auth-container">
         <div class="auth-card">
             
-                        <!-- Logo en círculo (más grande y centrado) -->
+                        <!-- 1. Logo circular de Messapi -->
             <div style="display: flex; justify-content: center; margin-bottom: 20px; margin-top: 10px;">
                 <div style="width: 96px; height: 96px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #ffffff; border: 1px solid #e5e7eb; padding: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
                     <img src="assets/logo.jpeg" alt="Messapi" style="width: 100%; height: 100%; object-fit: contain; border-radius: 50%;">
                 </div>
             </div>
 
-           
+           <!-- 2. Subtítulo debajo del logo -->
             <p class="auth-subtitle">Panel de administración</p>
 
+              <!-- 3. Formulario de Login -->
             <form id="login-form" novalidate>
                 <div class="form-group">
+                    <!-- Campo de Email -->
                     <label for="email">Email</label>
                     <input type="email" id="email" name="email" required
                            placeholder="admin1@test.com"
@@ -40,6 +44,7 @@
                            autofocus>
                 </div>
 
+                <!-- Campo de Contraseña -->
                 <div class="form-group">
                     <label for="password">Contraseña</label>
                     <input type="password" id="password" name="password" required
@@ -47,18 +52,21 @@
                            autocomplete="current-password">
                 </div>
 
+                  <!-- Botón para enviar el formulario -->
                 <button type="submit" class="btn btn-primary btn-block" id="login-btn">
                     Iniciar sesión
                 </button>
 
+                  <!-- Cartel rojo de error (oculto por defecto) -->
                 <div id="form-error" class="form-error" hidden></div>
             </form>
 
+            <!-- 4. Link para volver a la vista pública -->
             <p class="auth-footer">
                 <a href="public.html">← Volver a la vista pública</a>
             </p>
 
-                        <!-- Cartel de WhatsApp -->
+             <!-- 5. Cartel de WhatsApp para sumar restaurantes -->
             <div style="margin-top: 24px; text-align: center; width: 100%;">
                 <a href="https://wa.me/5493434165613?text=Hola!%20Quiero%20sumar%20mi%20restaurante%20a%20Messapi" 
                    target="_blank" 
@@ -73,12 +81,13 @@
         </div>
     </main>
 
-    <script src="js/config.js"></script>
-    <script src="js/utils/session.js"></script>
-    <script src="js/utils/ui.js"></script>
-    <script src="js/utils/guard.js"></script>
-    <script src="js/services/client.js"></script>
-    <script src="js/services/auth.js"></script>
-    <script src="js/pages/login.js"></script>
+     <!-- Scripts (se cargan en orden para que las dependencias funcionen) -->
+    <script src="js/config.js"></script>  <!-- Configuración global (URL de la API) -->
+    <script src="js/utils/session.js"></script> <!-- Manejo del token y sesión -->
+    <script src="js/utils/ui.js"></script>  <!-- Toasts, modales y loaders -->
+    <script src="js/utils/guard.js"></script> <!-- Protección de rutas -->
+    <script src="js/services/client.js"></script> <!-- Cliente HTTP (fetch) -->
+    <script src="js/services/auth.js"></script> <!-- Lógica de login/logout -->
+    <script src="js/pages/login.js"></script>  <!-- Lógica específica de esta página -->
 </body>
 </html>

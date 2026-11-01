@@ -2,31 +2,38 @@
    Página de login (mobile)
    ========================================================= */
 (function () {
-    Guard.requireGuest();
+     // Verifica que el usuario NO esté logueado. Si ya lo está, lo redirige a home.
+    Guard.requireGuest(); 
 
+    // Referencias a los elementos del DOM
     const form      = document.getElementById('login-form');
     const emailIn   = document.getElementById('email');
     const passIn    = document.getElementById('password');
     const btn       = document.getElementById('login-btn');
     const errorBox  = document.getElementById('form-error');
 
+     /*Muestra un mensaje de error debajo del formulario. */
     function showError(msg) {
         errorBox.textContent = msg;
         errorBox.hidden = false;
     }
 
+    /*Oculta el mensaje de error y limpia su contenido.*/
     function clearError() {
         errorBox.hidden = true;
         errorBox.textContent = '';
     }
 
+    // Evento que se dispara al enviar el formulario
     form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+        e.preventDefault();  // Evita que la página se recargue
         clearError();
 
+        // Obtenemos los valores de los inputs
         const email    = emailIn.value.trim();
         const password = passIn.value;
 
+         // Validaciones básicas en el frontend
         if (!email)    return showError('El email es obligatorio.');
         if (!password) return showError('La contraseña es obligatoria.');
         if (!/^\S+@\S+\.\S+$/.test(email)) {

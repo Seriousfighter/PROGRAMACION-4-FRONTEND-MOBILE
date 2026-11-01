@@ -2,10 +2,13 @@
    Dashboard (mobile) — Panel general de mesas
    ========================================================= */
 (function () {
+    // Verifica que el usuario esté logueado antes de mostrar nada
     Guard.requireAuth();
 
+    // Atajo para document.getElementById
     const $ = (id) => document.getElementById(id);
 
+    // Mapeo de los estados de las mesas para usar en clases CSS y textos
     const STATUS = {
         1: { key: 'available', label: 'Disponible' },
         2: { key: 'occupied',  label: 'Ocupada'    },
@@ -39,7 +42,7 @@
     const countReserved  = $('count-reserved');
     const searchTableInput = $('search-table-input');
 
-    let activeFilter = 'all';
+    let activeFilter = 'all'; // Filtro actual seleccionado
 
     /* ---------- DOM: Modal editar ---------- */
     const editModal      = $('edit-modal');
@@ -92,28 +95,37 @@
     const blockedMsg   = $('blocked-message');
     const blockedOk    = $('blocked-ok');
 
-    /* ---------- Estado ---------- */
-    let restaurant    = null;
-    let tables        = [];
-    let activeTab     = 'info';
+    /* ---------- Estado Global ---------- */
+    let restaurant    = null; // Guarda el objeto del restaurante actual
+    let tables        = [];  // Array con todas las mesas del restaurante
+    let activeTab     = 'info'; // Pestaña activa del modal
 
+    // Límites de negocio
     const MIN_TABLES = 1;
-    const MAX_TABLES = 100;
+    const MAX_TABLES = 100; // Regla: máximo 100 mesas por restaurante
     const MIN_CHAIRS = 1;
     const MAX_CHAIRS = 20;
 
     /* =========================================================
        NAVBAR Y TOGGLE
        ========================================================= */
+       // Eventos de los botones del navbar
     if (navHome) navHome.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
     if (navEdit) navEdit.addEventListener('click', openEditModal);
     if (navLogout) navLogout.addEventListener('click', () => AuthApi.logout());
 
+    /**
+     * Evento al cambiar el switch de Abierto/Cerrado.
+     * Si se cierra el restaurante, libera automáticamente todas las mesas.
+     */
     openCheckbox.addEventListener('change', async () => {
         if (!restaurant) return;
+
         const newState = openCheckbox.checked;
-        openCheckbox.disabled = true;
+        openCheckbox.disabled = true; // Evita doble clic mientras carga
+
         try {
+             // 1. Actualiza el estado en la base de datos
             await RestaurantApi.update(restaurant.id, {
                 name: restaurant.name, address: restaurant.address,
                 phone: restaurant.phone ?? null, description: restaurant.description ?? null, is_open: newState
@@ -121,19 +133,21 @@
             restaurant.is_open = newState ? 1 : 0;
             toggleLabel.textContent = newState ? 'Abierto' : 'Cerrado';
 
-            // SI SE CIERRA: Liberamos todas las mesas
+            // 2. SI SE CIERRA: Liberamos todas las mesas
             if (newState === false) {
                 const mesasAOcupar = tables.filter(t => t.status_id !== 1);
-                if (mesasAOcupar.length > 0) {
+
+                if (mesasAOcupar.length > 0) { 
+                    // Promise.all ejecuta todas las peticiones en paralelo para mayor velocidad
                     await Promise.all(mesasAOcupar.map(t => forceAvailable(t.id)));
                 }
             }
 
             UI.success(newState ? 'Restaurante abierto' : 'Restaurante cerrado y mesas liberadas');
-            await load();
+            await load(); // Recarga la vista para reflejar los cambios
 
         } catch (err) {
-            openCheckbox.checked = !newState;
+            openCheckbox.checked = !newState; // Revierte el switch si hay error
             UI.error(err.message || 'No se pudo cambiar el estado');
         } finally {
             openCheckbox.disabled = false;
@@ -143,6 +157,7 @@
     /* =========================================================
        FILTROS
        ========================================================= */
+       // Evento al tocar una pestaña de filtro (Todas, Libres, etc.)
     filterTabs.forEach(tab => {
         tab.addEventListener('click', () => {
             filterTabs.forEach(t => t.classList.remove('is-active'));
@@ -152,6 +167,7 @@
         });
     });
 
+    /* * Actualiza los contadores (números) de cada pestaña de filtro.* */
     function updateCounters() {
         countAll.textContent       = tables.length;
         countAvailable.textContent = tables.filter(t => t.status_id === 1).length;
@@ -159,6 +175,7 @@
         countReserved.textContent  = tables.filter(t => t.status_id === 3).length;
     }
 
+    /** Oculta o muestra los círculos de las mesas según el filtro y la búsqueda.**/
     function applyFilter() {
         const searchTerm = searchTableInput ? searchTableInput.value.trim() : '';
         const circles = tablesGrid.querySelectorAll('.table-circle');
@@ -171,7 +188,9 @@
             if (statusId === 2) statusKey = 'occupied';
             else if (statusId === 3) statusKey = 'reserved';
 
+             // 1. Verifica si coincide con el filtro de estado
             const matchesStatus = (activeFilter === 'all' || statusKey === activeFilter);
+             // 2. Verifica si coincide EXACTAMENTE con el número buscado
             const matchesSearch = searchTerm === '' || tableNumber === searchTerm;
 
             if (matchesStatus && matchesSearch) {
@@ -185,6 +204,8 @@
     /* =========================================================
        CARGA INICIAL
        ========================================================= */
+
+       /* Oculta todas las vistas y muestra solo la que recibe por parámetro.*/
     function showView(el) {
         [loading, emptyState, noTablesState, tablesContent].forEach(e => e.hidden = true);
         el.hidden = false;
@@ -208,6 +229,7 @@
             openCheckbox.checked = restaurant.is_open === 1 || restaurant.is_open === true;
             toggleLabel.textContent = openCheckbox.checked ? 'Abierto' : 'Cerrado';
 
+            // Trae las mesas del restaurante
             const tablesRes = await RestaurantApi.listTables(restaurant.id);
             tables = tablesRes.data || [];
 
@@ -216,6 +238,7 @@
                 return;
             }
 
+                // Dibuja los círculos
             renderTables();
             showView(tablesContent);
 
@@ -228,6 +251,7 @@
     /* =========================================================
        RENDER DE MESAS
        ========================================================= */
+       /* Dibuja en el HTML todos los círculos de las mesas.*/
     function renderTables() {
         tablesGrid.innerHTML = tables.map(t => {
             const status = STATUS[t.status_id] || STATUS[1];
@@ -241,6 +265,7 @@
             `;
         }).join('');
 
+             // Asigna el evento de clic a cada círculo
         tablesGrid.querySelectorAll('.table-circle').forEach(el => {
             el.addEventListener('click', () => rotateStatus(el));
         });
@@ -249,6 +274,7 @@
         applyFilter();
     }
 
+     /* Cambia el estado de una mesa al hacer clic (1 -> 2 -> 3 -> 1).*/
     async function rotateStatus(el) {
         const tableId = parseInt(el.dataset.id, 10);
         el.disabled = true;
@@ -257,11 +283,13 @@
             const updated = res.data;
             const newStatus = STATUS[updated.status_id] || STATUS[1];
             
+             // Actualiza las clases CSS del círculo
             el.classList.remove('table-circle--available', 'table-circle--occupied', 'table-circle--reserved');
             el.classList.add(`table-circle--${newStatus.key}`);
             el.dataset.status = updated.status_id;
             el.title = newStatus.label;
 
+            // Actualiza el estado local
             const idx = tables.findIndex(t => t.id === tableId);
             if (idx >= 0) tables[idx].status_id = updated.status_id;
 
@@ -277,10 +305,12 @@
         }
     }
 
+     /*Fuerza una mesa a volver al estado "Disponible" (1). Se usa cuando el restaurante se cierra. */
     async function forceAvailable(tableId) {
         const table = tables.find(t => t.id === tableId);
         if (!table || table.status_id === 1) return; 
 
+        // Calcula cuántas veces tiene que rotar para llegar a 1
         let rotationsNeeded = 0;
         if (table.status_id === 2) rotationsNeeded = 2;
         if (table.status_id === 3) rotationsNeeded = 1;
@@ -294,6 +324,8 @@
     /* =========================================================
        MODAL EDITAR
        ========================================================= */
+
+       /*Abre el modal y precarga los datos del restaurante.*/
     function openEditModal() {
         if (!restaurant) return;
 
@@ -302,6 +334,7 @@
         phoneIn.value = restaurant.phone || '';
         descIn.value = restaurant.description || '';
 
+        // Calcula cuántas mesas puede agregar antes de llegar a 100
         const remaining = MAX_TABLES - tables.length;
         addChairsCount.value = tables[0]?.chairs || 4;
         addTablesCount.value = remaining > 0 ? 1 : 0;
@@ -314,24 +347,27 @@
         activateTab('info');
         formError.hidden = true;
 
+         // Deshabilita los botones si ya se alcanzó el límite
         const isFull = remaining <= 0;
         addTablesMinus.disabled = isFull;
         addTablesPlus.disabled = isFull;
         addTablesCount.disabled = isFull;
 
         editModal.hidden = false;
-        document.body.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden'; // Bloquea el scroll del fondo
     }
 
     function closeEditModal() {
         editModal.hidden = true;
-        document.body.style.overflow = '';
+        document.body.style.overflow = ''; // Devuelve el scroll
     }
 
     editCancel.addEventListener('click', closeEditModal);
     editCancel2.addEventListener('click', closeEditModal);
+     // Cierra el modal si se hace clic en el fondo oscuro
     editModal.addEventListener('click', (e) => { if (e.target === editModal) closeEditModal(); });
 
+     /* Cambia entre las pestañas del modal (Info, Agregar, Eliminar).*/
     function activateTab(name) {
         activeTab = name;
         tabs.forEach(t => t.classList.toggle('is-active', t.dataset.tab === name));
@@ -347,8 +383,10 @@
     /* =========================================================
        NUMBERBOXES (AGREGAR)
        ========================================================= */
+        // Limita las sillas entre 1 y 20
     function clampChairs(n) { n = parseInt(n, 10); if (isNaN(n)) n = 4; return Math.min(MAX_CHAIRS, Math.max(MIN_CHAIRS, n)); }
     
+    // Limita las mesas a agregar según el espacio restante hasta 100
     function clampAddTables(n) {
         n = parseInt(n, 10);
         if (isNaN(n)) n = 1;
@@ -357,6 +395,7 @@
         return Math.min(remaining, Math.max(1, n));
     }
 
+          // Actualiza el texto que dice "Se agregarán X mesas con Y sillas"
     function updateAddHint() {
         const remaining = MAX_TABLES - tables.length;
         const chairs = clampChairs(addChairsCount.value);
@@ -374,10 +413,12 @@
         }
     }
 
+         // Eventos de los botones + y - de sillas
     addChairsMinus.addEventListener('click', () => { addChairsCount.value = clampChairs(addChairsCount.value) - 1; updateAddHint(); });
     addChairsPlus.addEventListener('click', () => { addChairsCount.value = clampChairs(addChairsCount.value) + 1; updateAddHint(); });
     addChairsCount.addEventListener('input', () => { addChairsCount.value = clampChairs(addChairsCount.value); updateAddHint(); });
 
+    // Eventos de los botones + y - de mesas
     addTablesMinus.addEventListener('click', () => { addTablesCount.value = clampAddTables(addTablesCount.value) - 1; updateAddHint(); });
     addTablesPlus.addEventListener('click', () => { addTablesCount.value = clampAddTables(addTablesCount.value) + 1; updateAddHint(); });
     addTablesCount.addEventListener('input', () => { addTablesCount.value = clampAddTables(addTablesCount.value); updateAddHint(); });
@@ -385,6 +426,7 @@
     /* =========================================================
        NUMBERBOXES (ELIMINAR)
        ========================================================= */
+         // Limita las mesas a eliminar (mínimo 1)
     function clampRemoveTables(n) {
         n = parseInt(n, 10);
         if (isNaN(n)) n = 1;
@@ -408,6 +450,7 @@
     /* =========================================================
        GUARDAR
        ========================================================= */
+        // Decide qué función ejecutar según la pestaña activa
     editForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         formError.hidden = true;
@@ -416,6 +459,7 @@
         else if (activeTab === 'remove') await removeTables();
     });
 
+      // Guarda los datos de la pestaña "Información"
     async function saveInfo() {
         const name = nameIn.value.trim();
         const address = addressIn.value.trim();
@@ -442,6 +486,7 @@
         }
     }
 
+    // Agrega las mesas nuevas a la base de datos
     async function addTables() {
         const remaining = MAX_TABLES - tables.length;
         if (remaining <= 0) { formError.textContent = `No podés agregar más mesas. Ya alcanzaste el límite de ${MAX_TABLES}.`; formError.hidden = false; return; }
@@ -456,7 +501,7 @@
 
         try {
             const startNumber = tables.length;
-            for (let i = 0; i < count; i++) {
+            for (let i = 0; i < count; i++) { // Bucle para crear cada mesa
                 const nextNumber = startNumber + i + 1;
                 await RestaurantApi.createTable(restaurant.id, { table_number: nextNumber, details: `Mesa ${nextNumber}`, chairs: chairs, status_id: 1 });
             }
@@ -472,10 +517,12 @@
         }
     }
 
+      // Elimina las mesas (solo si están disponibles)
     async function removeTables() {
         const count = clampRemoveTables(removeTablesCount.value);
         if (count <= 0) { formError.textContent = 'Elegí al menos 1 mesa para eliminar.'; formError.hidden = false; return; }
 
+        // Toma las últimas N mesas de la lista
         const toDelete = tables.slice(tables.length - count);
         const busy = toDelete.filter(t => t.status_id !== 1);
 
@@ -516,6 +563,7 @@
     cancelCreate.addEventListener('click', closeCreateModal);
     createModal.addEventListener('click', (e) => { if (e.target === createModal) closeCreateModal(); });
 
+     // Evento al enviar el formulario de crear restaurante
     createForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         modalError.hidden = true;
@@ -537,6 +585,8 @@
             closeCreateModal();
             await load();
 
+             // Si el restaurante se creó sin mesas, abre automáticamente el modal para agregar
+
             if (tables.length === 0) {
                 setTimeout(() => { openEditModal(); activateTab('add'); }, 400);
             }
@@ -552,6 +602,7 @@
     /* =========================================================
        CONFIRMACIÓN
        ========================================================= */
+       /*Muestra un modal de confirmación y devuelve una Promesa (true/false).*/
     function askConfirm(title, message) {
         return new Promise((resolve) => {
             confirmTitle.textContent = title;
@@ -571,14 +622,16 @@
         });
     }
 
+    /*Muestra un modal de advertencia que solo tiene el botón "Entendido".*/
     function showBlocked(message) {
         blockedMsg.textContent = message;
         blockedModal.hidden = false;
         blockedOk.addEventListener('click', () => { blockedModal.hidden = true; }, { once: true });
     }
 
+    // Evento del buscador de mesas
     if (searchTableInput) {
         searchTableInput.addEventListener('input', applyFilter);
     }
-    load();
+    load(); // Inicia la carga de la aplicación
 })();

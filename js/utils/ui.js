@@ -1,9 +1,8 @@
 /* =========================================================
    Utilidades de interfaz (mobile)
-   Toasts, loader global, modales y escape de HTML.
    ========================================================= */
 const UI = {
-    /* ---------- Escape de HTML (previene XSS) ---------- */
+    // Escapa caracteres especiales para evitar ataques XSS al inyectar HTML
     escape(str) {
         if (str === null || str === undefined) return '';
         return String(str)
@@ -14,7 +13,7 @@ const UI = {
             .replace(/'/g, '&#039;');
     },
 
-    /* ---------- Toasts (abajo de la pantalla) ---------- */
+    // Crea y muestra una notificación flotante (Toast) que desaparece sola a los 2 segundos
     toast(message, type = 'info') {
         const el = document.createElement('div');
         el.className = `toast toast-${type}`;
@@ -27,11 +26,12 @@ const UI = {
         }, 2000);
     },
 
+    // Atajos para mostrar toasts de éxito, error o información
     success(msg) { this.toast(msg, 'success'); },
     error(msg)   { this.toast(msg, 'error'); },
     info(msg)    { this.toast(msg, 'info'); },
 
-    /* ---------- Loader global (pantalla completa) ---------- */
+    // Crea y muestra un spinner de carga a pantalla completa
     showLoader() {
         let el = document.getElementById('global-loader');
         if (!el) {
@@ -44,16 +44,13 @@ const UI = {
         el.style.display = 'flex';
     },
 
+    // Oculta el spinner de carga global
     hideLoader() {
         const el = document.getElementById('global-loader');
         if (el) el.style.display = 'none';
     },
 
-    /* ---------- Modal de confirmación ----------
-       Uso:
-       const ok = await UI.confirm('¿Eliminar restaurante?');
-       if (ok) { ... }
-    */
+    // Muestra un modal de confirmación y devuelve una Promesa (true si acepta, false si cancela)
     confirm(message, options = {}) {
         const {
             title = 'Confirmar',
@@ -83,24 +80,23 @@ const UI = {
 
             document.body.appendChild(overlay);
 
+            // Elimina el modal del DOM y resuelve la promesa con el valor elegido
             const cleanup = (value) => {
                 overlay.remove();
                 resolve(value);
             };
 
-            overlay.querySelector('[data-action="cancel"]')
-                .addEventListener('click', () => cleanup(false));
+            overlay.querySelector('[data-action="cancel"]').addEventListener('click', () => cleanup(false));
+            overlay.querySelector('[data-action="confirm"]').addEventListener('click', () => cleanup(true));
 
-            overlay.querySelector('[data-action="confirm"]')
-                .addEventListener('click', () => cleanup(true));
-
+            // Cierra el modal si se hace clic fuera de él (en el fondo oscuro)
             overlay.addEventListener('click', (e) => {
                 if (e.target === overlay) cleanup(false);
             });
         });
     },
 
-    /* ---------- Redirección ---------- */
+    // Redirige al usuario a otra página
     redirect(path) {
         window.location.href = path;
     }
